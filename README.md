@@ -45,20 +45,131 @@ $
 
 ### skeleton.sh
 
-TODO
+#### Run
 
-Try:
+With the help of the line at the beginning of the file `set -e -o pipefail` we save very, very much time and mental health.
+`set -e` causes the execution to fail when an error occurs in any simple command e.g. `ls` on a missing file somewhere in the middle of the script.
+`set -o pipefail` leads to an error in the command line if at least one command from the pipeline failed.
+In other words, these settings allow you to see the error.
+
+By inserting at the end of the script
 ```bash
- $ ./skeleton.sh
- $ ./skeleton.sh --help
- $ ./skeleton.sh usage
- $ ./skeleton.sh svg
+if [ -z "$1" ] || [ "$1" == "--help" ]; then
+    usage
+else
+    "$@"
+fi
+```
+we can call any function by name, command line arguments will be passed to function arguments
+```bash
+$ ./skeleton.sh greetings Mark "ta, 6ta" Ann
+Hello, Mark!
+Hello, ta, 6ta!
+Hello, Ann!
+```
+Accordingly, a lot of commands (large and small) we can put together in one file to not look for the right on many files.
+
+#### Help
+
+It is convenient to have commands descriptions.
+```bash
+$ ./skeleton.sh usage
+greetings            say Hello to arguments
+make                 echo Make
+my                   echo my
+day                  echo day
+make_my_day          run in parallel: make, my, day
 ```
 
-It might need to install additional packages like:
+To do this, each function must be able to handle the argument `--help`.
+
+An example of the lack of the description:
+```bash
+$ cat skeleton.sh
+...
+no_help_example() {
+    [ "$1" == "--help" ] && return 0 || true
+...
 ```
-$ sudo apt install graphviz feh
+Please note that this function will not be displayed in the output of `$ skeleton.sh usage` at all.
+
+An example of the recommended (one simple line) description:
+```bash
+$ cat skeleton.sh
+...
+greetings() {
+    [ "$1" == "--help" ] && _help_and_exit "say Hello to arguments" || true
+...
 ```
+
+But there are no restrictions on the output of the function for the argument `--help` and you can do more complicated things:
+```bash
+$ cat skeleton.sh
+...
+print_functions() {
+    if [ "$1" == "--help" ]; then
+        echo
+        _help_and_exit "print all functions names"
+    fi
+...
+```
+
+The description of the command is generated as a string to substitute in it the value of variables:
+```bash
+$ cat skeleton.sh
+...
+usage() {
+        [ "$1" == "--help" ] && _help_and_exit "[or $(basename "$SELFNAME") --help] show this help message and exit"  || true
+...
+$ ./skeleton.sh 
+...
+usage                [or skeleton.sh --help] show this help message and exit
+$
+```
+
+#### Dependency graph
+
+It is convenient to look at these links explicitly when commands are depend on each other.
+To do this, use [Graphviz](http://www.graphviz.org/) for the graph and [Feh](https://wiki.archlinux.org/index.php/feh) for viewing.
+On Ubuntu you can install these packages via `$ sudo apt install graphviz feh`.
+
+```bash
+$ ./skeleton.sh svg
+```
+
+Dependencies are specified explicitly and each function must be able to handle the argument `--deps`.
+
+Without dependencies:
+```bash
+$ cat skeleton.sh
+...
+greetings() {
+    [ "$1" == "--deps" ] && return 0 || true
+...
+```
+
+With dependencies:
+```bash
+$ cat skeleton.sh
+...
+make_my_day() {
+    [ "$1" == "--deps" ] && _deps_and_exit "make" "my" "day" || true
+...
+```
+
+#### Helper functions
+
+File `skeleton.sh` contains a few helper functions, which add the desired functionality.
+It is assumed that working with your commands these you leave as it is:
+ - `_help_and_exit` - described above;
+ - `_deps_and_exit` - described above;
+ - `print_functions` - shows all available functions, because `usage` is not showing the function without description lines and functions whose name starts with an underscore;
+ - `print_hidden` - shows only those functions that are not shown by `usage`;
+ - `usage` - described above;
+ - `_make_dot_file` - is in use by `svg`;
+ - `svg` - described above.
+
+Like `usage`, `svg` ignores functions whose name begins with an underscore.
 
 ### skeleton.py
 

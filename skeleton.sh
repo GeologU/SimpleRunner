@@ -11,6 +11,15 @@ no_help_example() {
     echo "no help and no deps"
 }
 
+greetings() {
+    [ "$1" == "--help" ] && _help_and_exit "say Hello to arguments" || true
+    [ "$1" == "--deps" ] && return 0 || true
+
+    for item in "$@"; do
+        echo "Hello, $item!"
+    done
+}
+
 make() {
     [ "$1" == "--help" ] && _help_and_exit "echo Make" || true
     [ "$1" == "--deps" ] && return 0 || true
@@ -78,7 +87,6 @@ print_hidden() {
     "$SELFNAME" usage | awk '{print $1}' | sort > "$func_help"
 
     comm -2 -3 "$func_all" "$func_help"
-    echo "$func_all" "$func_help"
     rm -f "$func_all" "$func_help"
 }
 
