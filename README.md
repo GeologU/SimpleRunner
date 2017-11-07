@@ -175,3 +175,12 @@ Like `usage`, `svg` ignores functions whose name begins with an underscore.
 
 TODO
 
+#### with_html.py (and its unit tests with_html_ut.py)
+
+I use it to generate HTML.
+There are a lot of libraries of this kind, I was interested to write myself.
+As an example of use see the end of the `with_html_ut.py` and a few comments in the `with_html.py`.
+The HTML is generated, because it's easier for me to write nested tags.
+But most importantly, it is much easier to make changes.
+For example, replace the table containing lists with the list containing tables via sliding a few lines of code instead of rewriting the entire HTML.
+
