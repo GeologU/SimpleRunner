@@ -173,7 +173,44 @@ Like `usage`, `svg` ignores functions whose name begins with an underscore.
 
 ### skeleton.py
 
-TODO
+The GUI can provide the user with a lot of heterogeneous information and many controls at the same time.
+Relatively simple, portable and understandable by a different user method is to use HTML and a browser.
+Dynamically generated pages allow you to build complex work scenarios.
+
+The standard Python library contains an HTTP server implementation that with minimal
+additions can be used for real work.
+
+#### Running
+
+By default, a multi-threaded server is started on port 8000:
+```bash
+$ ./skeleton.py
+127.0.0.1 - - [09 / Nov / 2017 05:16:21] "GET / HTTP / 1.1" 200 -
+...
+```
+Exit by Ctrl+c.
+
+If you are running from another node, for example `http: //example.com: 8000 /`, make sure that your network settings have the necessary permissions.
+
+`skeleton.py` contains three pages:
+ - `/` - contains references to the other two;
+ - `/schema/` - shows a picture with dependencies from `./skeleton.sh svg`;
+ - `/command/` - shows the table with commands from `./skeleton.sh usage` and their brief description.
+
+#### Adding New Utilities
+
+To add new utilities, add a new path to the `do_POST` method (similar to the ones available) and add the code by analogy with the existing `show_*` methods.
+
+Do not forget about the convenience of moving from page to page:
+ - on the main page add a reference to the new path;
+ - on the new utility page add references to the main page and other potentially useful references.
+
+#### Very useful moment
+
+Graphviz, used by us to visualize dependencies, allows us to create images in svg format with URLs.
+That is, the node name can be a link that can be opened in the browser.
+In particular, this way you can run different commands by examining the schema in the browser.
+[Documentation](http://www.graphviz.org/content/attrs#dURL), [stackoverflow](https://stackoverflow.com/questions/15837283/graphviz-embedded-url).
 
 #### with_html.py (and its unit tests with_html_ut.py)
 
