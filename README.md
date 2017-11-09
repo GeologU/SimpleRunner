@@ -1,3 +1,16 @@
+ - [Some common words](README.md#some-common-words)
+ - [bashrc](README.md#bashrc)
+ - [skeleton.sh](README.md#skeleton.sh)
+    - [Run](README.md#run)
+    - [Help](README.md#help)
+    - [Dependency graph](README.md#dependency-graph)
+    - [Helper functions](README.md#helper-functions)
+ - [skeleton.py](README.md#skeleton.py)
+    - [Running](README.md#running)
+    - [Adding new utilities](README.md#adding-new-utilities)
+    - [Very useful moment](README.md#very-useful-moment)
+    - [with_html.py and its unit tests with_html_ut.py](README.md#with_html.py-and-its-unit-tests-with_html_ut.py)
+
 ### Some common words
 
 Essential time in my work I was engaged in infrastructural tasks in IT companies.
@@ -9,6 +22,8 @@ and as a result to allow to complete it with fewer bugs and more fun from work.
 Ideas are:
  - write down why you need this piece of code, because with the accumulation of the number of functional blocks, you will forget the very existence of some of them;
  - for related tasks, in an explicit form, record their relations, since this simplifies support and allows you to build more complex schemes.
+
+The project can be especially useful for debugging and prototyping.
 
 The code is written in this form to avoid unnecessary dependencies and complex environments.
 I am aware of the existence of [GNU Make](http://www.gnu.org/software/make/), [Celery](http://www.celeryproject.org/) and other similar products (a separate hi to [REM](https://github.com/heni/rem) :wink:).
@@ -197,7 +212,7 @@ If you are running from another node, for example `http: //example.com: 8000 /`,
  - `/schema/` - shows a picture with dependencies from `./skeleton.sh svg`;
  - `/command/` - shows the table with commands from `./skeleton.sh usage` and their brief description.
 
-#### Adding New Utilities
+#### Adding new utilities
 
 To add new utilities, add a new path to the `do_POST` method (similar to the ones available) and add the code by analogy with the existing `show_*` methods.
 
@@ -212,7 +227,7 @@ That is, the node name can be a link that can be opened in the browser.
 In particular, this way you can run different commands by examining the schema in the browser.
 [Documentation](http://www.graphviz.org/content/attrs#dURL), [stackoverflow](https://stackoverflow.com/questions/15837283/graphviz-embedded-url).
 
-#### with_html.py (and its unit tests with_html_ut.py)
+#### with_html.py and its unit tests with_html_ut.py
 
 I use it to generate HTML.
 There are a lot of libraries of this kind, I was interested to write myself.
