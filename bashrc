@@ -5,9 +5,18 @@ color_echo() {
 }
 
 signal_name() {
+    # for code <=128 return code itself
+    # for known signal return SIG<name>
+    # otherwise return code itself
     local code=$1
-    if [ $code -gt 128 -a $code -lt 255 ]; then
-        echo -n "SIG$(kill -l $((code-128)))"
+    local name
+    if [ $code -gt 128 ]; then
+        name="$(kill -l $((code-128)) 2>/dev/null || true)"
+        if [ -n "$name" ]; then
+            echo -n "SIG${name}"
+        else
+            echo -n $code
+        fi
     else
         echo -n $code
     fi
