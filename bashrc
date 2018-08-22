@@ -54,3 +54,8 @@ nice_user_name() {
 export PS1="\n* \$(nice_exit_code \$? \"\\\\\$?=\") | \a\D{%Y-%m-%d %H:%M:%S} | \$(nice_user_name)@\H:\$(pwd) *\n\\\$ "
 
 alias ll="ls -lb --inode --color=auto --classify --group-directories-first"
+alias m="make -j 11"
+
+# pretty printed json:
+# $ sj < big-one-line.json > pretty.json
+alias sj="python3 -c 'import sys, json; json.dump(json.load(sys.stdin), sys.stdout, indent=2, sort_keys=True)'"
