@@ -38,39 +38,38 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
 
         self.wfile.write(content)
 
-    def return_text(self, status, text, headers=None):
-        content = text.encode('UTF-8')
-        return self.return_content(status, 'text/plain', content, headers)
-
     def return_json(self, status, obj):
         content = json.dumps(obj, indent=2, sort_keys=True).encode('UTF-8')
         return self.return_content(status, 'application/json', content)
 
     def show_bad_path(self):
-        return self.return_text(HTTPStatus.NOT_FOUND, '\n'.join([
-            'No path found on server: ' + self.path,
-        ]))
+        return self.return_json(HTTPStatus.NOT_FOUND, {
+            'error': 'No path found on server: ' + self.path,
+        })
 
     def show_exception(self, exc):
-        return self.return_text(HTTPStatus.INTERNAL_SERVER_ERROR, '\n'.join([
-            'Internal server error:',
-            str(exc),
-        ]))
+        return self.return_json(HTTPStatus.INTERNAL_SERVER_ERROR, {
+            'error': 'Internal server error',
+            'details': str(exc),
+        })
 
     def read_data(self):
         data_size = self.headers['Content-Length']
-        self.data = self.rfile.read(int(data_size)) if data_size else None
+        if data_size:
+            return self.rfile.read(int(data_size))
+        return None
 
     def read_json(self):
-        self.read_data()
-        if self.data is not None:
-            self.data = json.loads(self.data)
+        data = self.read_data()
+        if data is not None:
+            return json.loads(data)
+        return None
 
     def show_index(self):
-        return self.return_json(HTTPStatus.OK, [
-            {'index': '/'},
-            {'sleeper': '/sleep'},
-        ])
+        return self.return_json(HTTPStatus.OK, {
+            'index': '/',
+            'sleeper': '/sleep',
+        })
 
     def show_sleep(self):
         to_sleep = 2.5 + random.random()
