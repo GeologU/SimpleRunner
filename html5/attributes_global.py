@@ -8,7 +8,7 @@ Based on https://www.w3schools.com/tags/ref_standardattributes.asp .
 
 import re
 
-from html_attributes import Attribute
+from attributes import Attribute
 
 
 class AttributeAccessKey(Attribute):

@@ -3,8 +3,8 @@ Basic HTML.
 Based on https://www.w3schools.com/tags/ref_byfunc.asp .
 """
 
-from html_attributes import AttributeHTML
-from html_tags import Tag
+from attributes import AttributeHTML
+from tags import Tag
 
 
 class TagDocType(Tag):

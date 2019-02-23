@@ -2,7 +2,7 @@
 
 """Tag-specific attributes."""
 
-from html_attributes import Attribute
+from attributes import Attribute
 
 
 class AttributeHTML(Attribute):

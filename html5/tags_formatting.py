@@ -3,9 +3,9 @@ Basic HTML.
 Based on https://www.w3schools.com/tags/ref_byfunc.asp .
 """
 
-from html_attributes import AttributeCite
-from html_attributes_global import AttributeDir
-from html_tags import Tag
+from attributes import AttributeCite
+from attributes_global import AttributeDir
+from tags import Tag
 
 
 class TagAbbr(Tag):

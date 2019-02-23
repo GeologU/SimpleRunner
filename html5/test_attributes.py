@@ -1,6 +1,6 @@
 import unittest
 
-from html_attributes import quote, Attribute
+from attributes import quote, Attribute
 
 
 class TestQuote(unittest.TestCase):

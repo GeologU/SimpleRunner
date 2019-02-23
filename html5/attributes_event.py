@@ -6,7 +6,7 @@ to HTML elements to define event actions.
 Based on https://www.w3schools.com/tags/ref_eventattributes.asp .
 """
 
-from html_attributes import Attribute
+from attributes import Attribute
 
 
 class EventAttribute(Attribute):

@@ -1,4 +1,4 @@
-from html_attributes_global import GLOBAL_ATTRIBUTE_BY_NAME
+from attributes_global import GLOBAL_ATTRIBUTE_BY_NAME
 
 ATTRIBUTES_FOR_ALL_TAGS = GLOBAL_ATTRIBUTE_BY_NAME.keys() + {'oncontextmenu'}
 
