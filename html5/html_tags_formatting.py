@@ -4,7 +4,7 @@ Based on https://www.w3schools.com/tags/ref_byfunc.asp .
 """
 
 from html_attributes import AttributeCite
-from html_global_attributes import AttributeDir
+from html_attributes_global import AttributeDir
 from html_tags import Tag
 
 

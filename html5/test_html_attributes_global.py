@@ -1,7 +1,7 @@
 import unittest
 
-import html_global_attributes
-from html_global_attributes import global_attribute
+import html_attributes_global
+from html_attributes_global import global_attribute
 
 
 class TestAttributeBase(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestAttributeAccessKey(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeAccessKey
+        cls.attr_cls = html_attributes_global.AttributeAccessKey
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('x')), ' accesskey="x"')
@@ -51,7 +51,7 @@ class TestAttributeClass(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeClass
+        cls.attr_cls = html_attributes_global.AttributeClass
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('intro')), ' class="intro"')
@@ -76,7 +76,7 @@ class TestAttributeContentEditable(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeContentEditable
+        cls.attr_cls = html_attributes_global.AttributeContentEditable
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('false')), ' contenteditable="false"')
@@ -99,7 +99,7 @@ class TestAttributeDataStar(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeDataStar
+        cls.attr_cls = html_attributes_global.AttributeDataStar
 
     def assertGoodName(self, good_name, internal=None):
         if internal is None:
@@ -168,7 +168,7 @@ class TestAttributeDir(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeDir
+        cls.attr_cls = html_attributes_global.AttributeDir
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('auto')), ' dir="auto"')
@@ -188,7 +188,7 @@ class TestAttributeDraggable(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeDraggable
+        cls.attr_cls = html_attributes_global.AttributeDraggable
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('auto')), ' draggable="auto"')
@@ -211,7 +211,7 @@ class TestAttributeDropZone(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeDropZone
+        cls.attr_cls = html_attributes_global.AttributeDropZone
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('copy')), ' dropzone="copy"')
@@ -232,7 +232,7 @@ class TestAttributeHidden(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeHidden
+        cls.attr_cls = html_attributes_global.AttributeHidden
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls()), ' hidden')
@@ -242,7 +242,7 @@ class TestAttributeID(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeID
+        cls.attr_cls = html_attributes_global.AttributeID
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('some_id')), ' id="some_id"')
@@ -264,7 +264,7 @@ class TestAttributeLang(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeLang
+        cls.attr_cls = html_attributes_global.AttributeLang
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('en')), ' lang="en"')
@@ -287,7 +287,7 @@ class TestAttributeSpellCheck(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeSpellCheck
+        cls.attr_cls = html_attributes_global.AttributeSpellCheck
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('false')), ' spellcheck="false"')
@@ -310,7 +310,7 @@ class TestAttributeStyle(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeStyle
+        cls.attr_cls = html_attributes_global.AttributeStyle
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('style_definitions')), ' style="style_definitions"')
@@ -327,7 +327,7 @@ class TestAttributeTabIndex(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeTabIndex
+        cls.attr_cls = html_attributes_global.AttributeTabIndex
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('5')), ' tabindex="5"')
@@ -348,7 +348,7 @@ class TestAttributeTitle(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeTitle
+        cls.attr_cls = html_attributes_global.AttributeTitle
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('text')), ' title="text"')
@@ -365,7 +365,7 @@ class TestAttributeTranslate(TestAttributeBase):
 
     @classmethod
     def setUpClass(cls):
-        cls.attr_cls = html_global_attributes.AttributeTranslate
+        cls.attr_cls = html_attributes_global.AttributeTranslate
 
     def test_attr(self):
         self.assertEqual(str(self.attr_cls('yes')), ' translate="yes"')
@@ -387,38 +387,38 @@ class TestAttributeTranslate(TestAttributeBase):
 class TestGlobalAttribute(unittest.TestCase):
 
     def test_basic(self):
-        self.assertEqual(len(html_global_attributes.GLOBAL_ATTRIBUTE_BY_NAME), 15)
+        self.assertEqual(len(html_attributes_global.GLOBAL_ATTRIBUTE_BY_NAME), 15)
 
         self.assertIsInstance(global_attribute('accesskey', 'a'),
-                              html_global_attributes.AttributeAccessKey)
+                              html_attributes_global.AttributeAccessKey)
         self.assertIsInstance(global_attribute('class', 'test'),
-                              html_global_attributes.AttributeClass)
+                              html_attributes_global.AttributeClass)
         self.assertIsInstance(global_attribute('contenteditable', 'true'),
-                              html_global_attributes.AttributeContentEditable)
+                              html_attributes_global.AttributeContentEditable)
         self.assertIsInstance(global_attribute('data-test', 'test'),
-                              html_global_attributes.AttributeDataStar)
+                              html_attributes_global.AttributeDataStar)
         self.assertIsInstance(global_attribute('dir', 'auto'),
-                              html_global_attributes.AttributeDir)
+                              html_attributes_global.AttributeDir)
         self.assertIsInstance(global_attribute('draggable', 'auto'),
-                              html_global_attributes.AttributeDraggable)
+                              html_attributes_global.AttributeDraggable)
         self.assertIsInstance(global_attribute('dropzone', 'link'),
-                              html_global_attributes.AttributeDropZone)
+                              html_attributes_global.AttributeDropZone)
         self.assertIsInstance(global_attribute('hidden'),
-                              html_global_attributes.AttributeHidden)
+                              html_attributes_global.AttributeHidden)
         self.assertIsInstance(global_attribute('id', 'id'),
-                              html_global_attributes.AttributeID)
+                              html_attributes_global.AttributeID)
         self.assertIsInstance(global_attribute('lang', 'fr'),
-                              html_global_attributes.AttributeLang)
+                              html_attributes_global.AttributeLang)
         self.assertIsInstance(global_attribute('spellcheck', 'true'),
-                              html_global_attributes.AttributeSpellCheck)
+                              html_attributes_global.AttributeSpellCheck)
         self.assertIsInstance(global_attribute('style', 'test'),
-                              html_global_attributes.AttributeStyle)
+                              html_attributes_global.AttributeStyle)
         self.assertIsInstance(global_attribute('tabindex', '4'),
-                              html_global_attributes.AttributeTabIndex)
+                              html_attributes_global.AttributeTabIndex)
         self.assertIsInstance(global_attribute('title', 'test'),
-                              html_global_attributes.AttributeTitle)
+                              html_attributes_global.AttributeTitle)
         self.assertIsInstance(global_attribute('translate', 'yes'),
-                              html_global_attributes.AttributeTranslate)
+                              html_attributes_global.AttributeTranslate)
 
         self.assertIsNone(global_attribute('nothing', 'test'))
 
