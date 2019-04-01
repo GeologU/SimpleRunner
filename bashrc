@@ -37,6 +37,26 @@ nice_exit_code() {
     color_echo "$color" "$prefix$name"
 }
 
+nice_pipe_status() {
+    declare -a pipe_copy=${PIPESTATUS[*]}
+
+
+    local pipe_status=""
+    local prefix_color='\E[32m'    # green
+
+
+    for code in ${pipe_copy[*]}; do
+        if [ $code -ne 0 ]; then
+            prefix_color='\E[31m'  # red
+        fi
+        pipe_status="$pipe_status $(nice_exit_code $code "")"
+    done
+
+
+    color_echo "$prefix_color" '$? ='
+    color_echo '' "$pipe_status"
+}
+
 nice_user_name() {
     local user_id name
     user_id=$(id -u)
@@ -50,12 +70,11 @@ nice_user_name() {
     color_echo "$color" "$name"
 }
 
-# "\$" in PS1 means "#" for root and "$" for user so we use "\\\\\$?" to display string "$?"
-export PS1="\n* \$(nice_exit_code \$? \"\\\\\$?=\") | \a\D{%Y-%m-%d %H:%M:%S} | \$(nice_user_name)@\H:\$(pwd) *\n\\\$ "
+export PS1="\n* \$(nice_pipe_status) | \a\D{%Y-%m-%d %H:%M:%S} | \$(nice_user_name)@\H:\$(pwd) *\n\\\$ "
 
 alias ll="ls -lb --inode --color=auto --classify --group-directories-first"
 alias m="make -j 11"
 
 # pretty printed json:
 # $ sj < big-one-line.json > pretty.json
-alias sj="python3 -c 'import sys, json; json.dump(json.load(sys.stdin), sys.stdout, indent=2, sort_keys=True)'"
+alias sj="{ python3 -c 'import sys; import json; json.dump(json.load(sys.stdin), sys.stdout, indent=2, sort_keys=True)' | sed -E 's/ \$//'; }"
