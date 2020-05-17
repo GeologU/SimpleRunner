@@ -237,7 +237,11 @@ The HTML is generated, because it's easier for me to write nested tags.
 But most importantly, it is much easier to make changes.
 For example, replace the table containing lists with the list containing tables via sliding a few lines of code instead of rewriting the entire HTML.
 
+#### with_html_stack.py and its unit tests with_html_stack_ut.py
+
+Further development of `with_html.py` with a simplified interface.
+For an example of usage, see the tests in `with_html_stack_ut.py`.
+
 #### skeleton_json.py
 
 Refactoring of skeleton.py to work with text and JSON API only.
-
