@@ -160,28 +160,60 @@ class HTMLNode:
 
 
 class HTMLDocument:
-    """
-    Example:
-    ---
-    from with_html_stack import HTMLDocument
+    """Example:
 
+    >>> from with_html_stack import HTMLDocument, DEV_PARAMS, PROD_PARAMS
+    >>> doc = HTMLDocument()
+    >>> doc('!doctype', html=None)      # doctest: +ELLIPSIS
+    <with_html_stack.HTMLDocument object at 0x...>
+    >>> with doc('html', lang='en'):    # doctest: +ELLIPSIS
+    ...     with doc('head'):
+    ...             doc('title', raw='Example Domain')
+    ...             doc('meta', charset='utf-8')
+    ...     with doc('body'):
+    ...             with doc('div'):
+    ...                     doc('h1', raw='Example Domain')
+    ...                     with doc('p'):
+    ...                             doc.raw('This domain is for use in illustrative examples in documents. You ')
+    ...                             doc.raw('may use this domain in literature without prior coordination or asking for permission.')
+    ...                     with doc('p'):
+    ...                             with doc('a', href='https://www.iana.org/domains/example'):
+    ...                                     doc.raw('More information')
+    ... 
+    <with_html_stack.HTMLDocument object at 0x...>
+    <with_html_stack.HTMLDocument object at 0x...>
+    <with_html_stack.HTMLDocument object at 0x...>
 
-    doc = HTMLDocument()
-    doc('!doctype', html=None)
-    with doc('html', lang='en'):
-        with doc('head'):
-            doc('title', raw='Example Domain')
-            doc('meta', charset='utf-8')
-        with doc('body'):
-            with doc('div'):
-                doc('h1', raw='Example Domain')
-                with doc('p'):
-                    doc.raw('This domain is for use in illustrative examples in documents. You ')
-                    doc.raw('may use this domain in literature without prior coordination or asking for permission.')
-                with doc('p'):
-                    with doc('a', href='https://www.iana.org/domains/example'):
-                        doc.raw('More information')
-    html = doc.text(PROD_PARAMS)
+    >>> print(doc.text(DEV_PARAMS))
+    <!doctype html>
+    <html lang="en">
+        <head>
+            <title>
+                Example Domain
+            </title>
+            <meta charset="utf-8"/>
+        </head>
+        <body>
+            <div>
+                <h1>
+                    Example Domain
+                </h1>
+                <p>
+                    This domain is for use in illustrative examples in documents. You 
+                    may use this domain in literature without prior coordination or asking for permission.
+                </p>
+                <p>
+                    <a href="https://www.iana.org/domains/example">
+                        More information
+                    </a>
+                </p>
+            </div>
+        </body>
+    </html>
+    <BLANKLINE>
+
+    >>> print(doc.text(PROD_PARAMS))
+    <!doctype html><html lang="en"><head><title>Example Domain</title><meta charset="utf-8"/></head><body><div><h1>Example Domain</h1><p>This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.</p><p><a href="https://www.iana.org/domains/example">More information</a></p></div></body></html>
     """
 
     def __init__(self) -> None:
