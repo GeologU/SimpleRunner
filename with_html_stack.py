@@ -41,7 +41,7 @@ class HTMLRaw:
         self.prefix = prefix
         self.suffix = suffix
 
-    def text(self, params):
+    def text(self, params: TextParams):
         lines = self.raw.splitlines()
 
         spaces = 0
@@ -97,7 +97,7 @@ class HTMLTag:
             ret = ' ' + ret
         return ret
 
-    def text(self, params, raw: Optional[str] = None) -> str:
+    def text(self, params: TextParams, raw: Optional[str] = None) -> str:
         prefix = '<{}{}'.format(self.name, self.text_attributes())
         ret = params.line('<{}{}>'.format(self.name, self.text_attributes()))
 
@@ -143,7 +143,7 @@ class HTMLNode:
         if self.node_raw is not None and self.children:
             raise RuntimeError("node can't contain HTML and children nodes at the same time")
 
-    def text(self, params):
+    def text(self, params: TextParams):
         self.verify()
 
         children_params = params if self.node_tag is None else params.inner
@@ -166,22 +166,22 @@ class HTMLDocument:
     from with_html_stack import HTMLDocument
 
 
-    H = HTMLDocument()
-    H.tag('!doctype', html=None)
-    with H.tag('html', lang='en'):
-        with H.tag('head'):
-            H.tag('title', raw='Example Domain')
-            H.tag('meta', charset='utf-8')
-        with H.tag('body'):
-            with H.tag('div'):
-                H.tag('h1', raw='Example Domain')
-                with H.tag('p'):
-                    H.raw('This domain is for use in illustrative examples in documents. You ')
-                    H.raw('may use this domain in literature without prior coordination or asking for permission.')
-                with H.tag('p'):
-                    with H.tag('a', href='https://www.iana.org/domains/example'):
-                        H.raw('More information')
-    html = H.text(PROD_PARAMS)
+    doc = HTMLDocument()
+    doc('!doctype', html=None)
+    with doc('html', lang='en'):
+        with doc('head'):
+            doc('title', raw='Example Domain')
+            doc('meta', charset='utf-8')
+        with doc('body'):
+            with doc('div'):
+                doc('h1', raw='Example Domain')
+                with doc('p'):
+                    doc.raw('This domain is for use in illustrative examples in documents. You ')
+                    doc.raw('may use this domain in literature without prior coordination or asking for permission.')
+                with doc('p'):
+                    with doc('a', href='https://www.iana.org/domains/example'):
+                        doc.raw('More information')
+    html = doc.text(PROD_PARAMS)
     """
 
     def __init__(self) -> None:
@@ -201,13 +201,18 @@ class HTMLDocument:
             tag=None,
         ))
 
-    def tag(self, name: str, raw: Optional[str] = None, **kwargs) -> None:
+    def __call__(self, name: str, raw: Optional[str] = None, **kwargs) -> 'HTMLDocument':
+        # It is more clear to write
+        #   doc.add_tag(tag_name, ...)
+        # but usually there are a lot of tags in the document, so that use
+        #   doc(tag_name, ...)
+        # to reduce repetitive text.
         self.node.children.append(HTMLNode(
             parent=self.node,
             raw=None if raw is None else HTMLRaw(raw),
             tag=HTMLTag(name, **kwargs),
         ))
-        return self
+        return self     # for use in "with" statement
 
     def __enter__(self):
         if not self.node.children:
@@ -221,5 +226,13 @@ class HTMLDocument:
             raise RuntimeError('__enter__ not called')
         self.node = self.node.parent
 
-    def text(self, params):
+    def append(self, other: 'HTMLDocument') -> None:
+        """
+        A bit of optimization: do not use other document after append or do it like
+            import copy
+            doc.append(copy.deepcopy(other))
+        """
+        self.node.children.append(other.node)
+
+    def text(self, params: TextParams) -> str:
         return self.node.root().text(params)
