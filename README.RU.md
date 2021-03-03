@@ -245,4 +245,4 @@ HTML генерируется, т.к. мне так проще писать вл
 
 #### skeleton_json.py
 
-Рефакторинг skeleton.py для работы только c текстом и JSON API.
+Рефакторинг skeleton.py (ещё проще) для работы только c текстом и JSON API. Пример использования в `skeleton_json_example.py`.

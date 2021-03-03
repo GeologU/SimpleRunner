@@ -244,4 +244,4 @@ For an example of usage, see the tests in `with_html_stack_ut.py`.
 
 #### skeleton_json.py
 
-Refactoring of skeleton.py to work with text and JSON API only.
+Refactoring of skeleton.py (even easier) to work with text and JSON API only. See also `skeleton_json_example.py`.
