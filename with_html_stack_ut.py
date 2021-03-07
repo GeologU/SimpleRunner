@@ -234,6 +234,65 @@ class TestHTMLComment(unittest.TestCase):
         )
 
 
+class TestHTMLAttribute(unittest.TestCase):
+
+    def test_test(self):
+        # check default values
+        self.assertEqual(with_html_stack.HTMLAttribute('attr').text(), 'attr')
+        self.assertEqual(with_html_stack.HTMLAttribute('attr', '<value>').text(), 'attr="<value>"')
+
+        # check various cases
+        # input data produced with:
+        # >>> list(itertools.product(('attr', '_complex_name'), ('value', '<value>', None), (True, False), ('',)))
+        for attr, value, escape, expected in [
+            ('attr', 'value', True, 'attr="value"'),
+            ('attr', 'value', False, 'attr="value"'),
+            ('attr', '<value>', True, 'attr="&lt;value&gt;"'),
+            ('attr', '<value>', False, 'attr="<value>"'),
+            ('attr', None, True, 'attr'),
+            ('attr', None, False, 'attr'),
+            ('_complex_name', 'value', True, 'complex-name="value"'),
+            ('_complex_name', 'value', False, 'complex-name="value"'),
+            ('_complex_name', '<value>', True, 'complex-name="&lt;value&gt;"'),
+            ('_complex_name', '<value>', False, 'complex-name="<value>"'),
+            ('_complex_name', None, True, 'complex-name'),
+            ('_complex_name', None, False, 'complex-name')
+        ]:
+            with self.subTest(attr=attr, value=value, escape=escape, expected=expected):
+                self.assertEqual(
+                    with_html_stack.HTMLAttribute(attribute=attr, value=value, escape=escape).text(),
+                    expected
+                )
+
+    def test_code(self):
+        # check default values
+        self.assertEqual(with_html_stack.HTMLAttribute('attr').code(), 'attr=None')
+        self.assertEqual(with_html_stack.HTMLAttribute('attr', '<value>').code(), "attr='<value>'")
+
+        # check various cases
+        # input data produced with:
+        # >>> list(itertools.product(('attr', '_complex_name'), ('value', '<value>', None), (True, False), ('',)))
+        for attr, value, escape, expected in [
+            ('attr', 'value', True, "attr='value'"),
+            ('attr', 'value', False, "attr='value'"),
+            ('attr', '<value>', True, "attr=html.escape('<value>')"),
+            ('attr', '<value>', False, "attr='<value>'"),
+            ('attr', None, True, 'attr=None'),
+            ('attr', None, False, 'attr=None'),
+            ('_complex_name', 'value', True, "_complex_name='value'"),
+            ('_complex_name', 'value', False, "_complex_name='value'"),
+            ('_complex_name', '<value>', True, "_complex_name=html.escape('<value>')"),
+            ('_complex_name', '<value>', False, "_complex_name='<value>'"),
+            ('_complex_name', None, True, '_complex_name=None'),
+            ('_complex_name', None, False, '_complex_name=None')
+        ]:
+            with self.subTest(attr=attr, value=value, escape=escape, expected=expected):
+                self.assertEqual(
+                    with_html_stack.HTMLAttribute(attribute=attr, value=value, escape=escape).code(),
+                    expected
+                )
+
+
 class TestHTMLDocument(unittest.TestCase):
 
     def setUp(self):

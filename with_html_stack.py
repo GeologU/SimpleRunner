@@ -126,7 +126,7 @@ class HTMLComment(HTMLRaw):
 
 class HTMLAttribute:
 
-    def __init__(self, attribute, value=None, escape=True):
+    def __init__(self, attribute, value=None, escape=False):
         self.attribute = from_safe_name(attribute)
         self.value = html.escape(value) if (escape and value is not None) else value
 
