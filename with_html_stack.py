@@ -256,7 +256,7 @@ class HTMLDocument:
     """Example:
 
     >>> from with_html_stack import HTMLDocument, DEV_PARAMS, PROD_PARAMS
-    >>> doc = HTMLDocument()
+    >>> doc = HTMLDocument(doctype=False)
     >>> doc('!doctype', html=None)      # doctest: +ELLIPSIS
     <with_html_stack.HTMLDocument object at 0x...>
     >>> with doc('html', lang='en'):    # doctest: +ELLIPSIS
@@ -309,8 +309,10 @@ class HTMLDocument:
     <!doctype html><html lang="en"><head><title>Example Domain</title><meta charset="utf-8"/></head><body><div><h1>Example Domain</h1><p>This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.</p><p><a href="https://www.iana.org/domains/example">More information</a></p></div></body></html>
     """
 
-    def __init__(self) -> None:
+    def __init__(self, doctype: bool = True) -> None:
         self.node = HTMLNode()
+        if doctype:
+            self('!DOCTYPE', html=None)
 
     def raw(self, raw: str) -> None:
         self.node.children.append(HTMLNode(
@@ -356,3 +358,6 @@ class HTMLDocument:
 
     def text(self, params: TextParams) -> str:
         return self.node.root().text(params)
+
+    def content(self, params: TextParams = PROD_PARAMS, coding: str = 'UTF-8') -> bytes:
+        return bytes(self.text(params), coding)

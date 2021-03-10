@@ -29,8 +29,6 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/html')
 
         doc = with_html_stack.HTMLDocument()
-        doc('!DOCTYPE', html=None)
-
         with doc('html', lang='en'):
             with doc('head'):
                 doc('title', 'Select your task')
@@ -40,8 +38,7 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
                     doc('a', 'View commands', href='/command/')
                 with doc('p'):
                     doc('a', 'View dependencies of commands', href='/schema/')
-
-        content = bytes(doc.text(with_html_stack.DEV_PARAMS), 'UTF-8')
+        content = doc.content(with_html_stack.DEV_PARAMS)
 
         self.send_header('Content-Length', int(len(content)))
         self.end_headers()
@@ -59,8 +56,6 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/html')
 
         doc = with_html_stack.HTMLDocument()
-        doc('!DOCTYPE', html=None)
-
         with doc('html', lang='en'):
             with doc('head'):
                 doc('title', 'Select your task')
@@ -76,8 +71,7 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
                         with doc('tr'):
                             doc('td', command)
                             doc('td', description)
-
-        content = bytes(doc.text(with_html_stack.DEV_PARAMS), 'UTF-8')
+        content = doc.content(with_html_stack.DEV_PARAMS)
 
         self.send_header('Content-Length', int(len(content)))
         self.end_headers()
@@ -97,8 +91,6 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/html')
 
         doc = with_html_stack.HTMLDocument()
-        doc('!DOCTYPE', html=None)
-
         with doc('html', lang='en'):
             with doc('head'):
                 doc('title', 'Error: path not found')
@@ -107,8 +99,7 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
                 doc('h1', 'Error: path not found')
                 doc('p', 'No path found on server: ' + escape(self.path))
                 doc('a', 'Go to start page', href='/')
-
-        content = bytes(doc.text(with_html_stack.DEV_PARAMS), 'UTF-8')
+        content = doc.content(with_html_stack.DEV_PARAMS)
 
         self.send_header('Content-Length', int(len(content)))
         self.end_headers()
