@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 
 from http import HTTPStatus
-from http.server import HTTPServer
-from socketserver import ThreadingMixIn
+from http.server import ThreadingHTTPServer
 import random
 import time
 import datetime
 import threading
 
-from skeleton_json import SmallHTTPRequestHandler
+from skeleton_json import JSONHandler
 
 
-class ExampleHanler(SmallHTTPRequestHandler):
+class ExampleHanler(JSONHandler):
 
     def do_GET(self):
         self.do_POST()
@@ -45,13 +44,8 @@ class ExampleHanler(SmallHTTPRequestHandler):
         })
 
 
-class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
-    pass
-
-
-def run(server_class=ThreadingHTTPServer, handler_class=ExampleHanler):
-    server_address = ('', 8001)
-    httpd = server_class(server_address, handler_class)
+def run():
+    httpd = ThreadingHTTPServer(('', 8001), ExampleHanler)
     httpd.serve_forever()
 
 

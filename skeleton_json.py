@@ -5,7 +5,7 @@ from http.server import BaseHTTPRequestHandler
 import json
 
 
-class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
+class JSONHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         raise NotImplementedError
