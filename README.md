@@ -9,7 +9,7 @@
     - [Running](#running)
     - [Adding new utilities](#adding-new-utilities)
     - [Very useful moment](#very-useful-moment)
-    - [with_html.py and its unit tests with_html_ut.py](#with_htmlpy-and-its-unit-tests-with_html_utpy)
+    - [with_html_stack.py and its unit tests with_html_stack_ut.py](#with_html_stackpy-and-its-unit-tests-with_html_stack_utpy)
     - [skeleton_json.py](#skeleton_jsonpy)
 
 ### Some common words
@@ -228,19 +228,11 @@ That is, the node name can be a link that can be opened in the browser.
 In particular, this way you can run different commands by examining the schema in the browser.
 [Documentation](http://www.graphviz.org/content/attrs#dURL), [stackoverflow](https://stackoverflow.com/questions/15837283/graphviz-embedded-url).
 
-#### with_html.py and its unit tests with_html_ut.py
-
-I use it to generate HTML.
-There are a lot of libraries of this kind, I was interested to write myself.
-As an example of use see the end of the `with_html_ut.py` and a few comments in the `with_html.py`.
-The HTML is generated, because it's easier for me to write nested tags.
-But most importantly, it is much easier to make changes.
-For example, replace the table containing lists with the list containing tables via sliding a few lines of code instead of rewriting the entire HTML.
-
 #### with_html_stack.py and its unit tests with_html_stack_ut.py
 
-Further development of `with_html.py` with a simplified interface.
-For an example of usage, see the tests in `with_html_stack_ut.py`.
+There are a lot of libraries of this kind, I was interested to write myself.
+As an example of use see the end of the `with_html_stack_ut.py` and a few comments in the `with_html_stack.py`.
+The HTML is generated, because it's easier for me to write nested tags.
 
 #### skeleton_json.py
 

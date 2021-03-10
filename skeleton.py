@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 from html import escape
+from http import HTTPStatus
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
-from http import HTTPStatus
 import subprocess
 
-import with_html
+import with_html_stack
 
 
 class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -28,23 +28,20 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'text/html')
 
-        page = with_html.HTMLNode()
-        page.tagl('!DOCTYPE', xxhtml=None)
-        page.rawl('')
-        html = page.tagb('html')
+        doc = with_html_stack.HTMLDocument()
+        doc('!DOCTYPE', html=None)
 
-        with html.tagb('head') as h:
-            h.tagl('title', 'Select your task')
-            h.tagl('meta', xxhttp_equiv='Content-type', content='text/html; charset=utf-8')
+        with doc('html', lang='en'):
+            with doc('head'):
+                doc('title', 'Select your task')
+                doc('meta', _http_equiv='Content-type', content='text/html; charset=utf-8')
+            with doc('body'):
+                with doc('p'):
+                    doc('a', 'View commands', href='/command/')
+                with doc('p'):
+                    doc('a', 'View dependencies of commands', href='/schema/')
 
-        html.rawl('')
-        with html.tagb('body') as b:
-            with b.tagl('p') as p:
-                p.tagc('a', 'View commands', href='/command/')
-            with b.tagl('p') as p:
-                p.tagc('a', 'View dependencies of commands', href='/schema/')
-
-        content = bytes(page.text(with_html.TextParams()), 'UTF-8')
+        content = bytes(doc.text(with_html_stack.DEV_PARAMS), 'UTF-8')
 
         self.send_header('Content-Length', int(len(content)))
         self.end_headers()
@@ -61,29 +58,26 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.OK)
         self.send_header('Content-Type', 'text/html')
 
-        page = with_html.HTMLNode()
-        page.tagl('!DOCTYPE', xxhtml=None)
-        page.rawl('')
-        html = page.tagb('html')
+        doc = with_html_stack.HTMLDocument()
+        doc('!DOCTYPE', html=None)
 
-        with html.tagb('head') as h:
-            h.tagl('title', 'Select your task')
-            h.tagl('meta', xxhttp_equiv='Content-type', content='text/html; charset=utf-8')
-            with h.tagb('style', xxtype='text/css') as s:
-                s.rawl('table, td {border: 1px solid gray; border-collapse: collapse;}')
+        with doc('html', lang='en'):
+            with doc('head'):
+                doc('title', 'Select your task')
+                doc('meta', _http_equiv='Content-type', content='text/html; charset=utf-8')
+                with doc('style'):
+                    doc.raw('table, td {border: 1px solid gray; border-collapse: collapse;}')
+            with doc('body'):
+                with doc('p'):
+                    doc('a', 'Go to start page', href='/')
+                with doc('table'):
+                    doc('caption', 'Available commands')
+                    for command, description in commands:
+                        with doc('tr'):
+                            doc('td', command)
+                            doc('td', description)
 
-        html.rawl('')
-        with html.tagb('body') as b:
-            with b.tagl('p') as p:
-                p.tagc('a', 'Go to start page', href='/')
-            with b.tagb('table') as table:
-                table.tagl('caption', 'Available commands')
-                for command, description in commands:
-                    with table.tagl('tr') as row:
-                        row.tagc('td', command)
-                        row.tagc('td', description)
-
-        content = bytes(page.text(with_html.TextParams()), 'UTF-8')
+        content = bytes(doc.text(with_html_stack.DEV_PARAMS), 'UTF-8')
 
         self.send_header('Content-Length', int(len(content)))
         self.end_headers()
@@ -102,22 +96,19 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(HTTPStatus.NOT_FOUND)
         self.send_header('Content-Type', 'text/html')
 
-        page = with_html.HTMLNode()
-        page.tagl('!DOCTYPE', xxhtml=None)
-        page.rawl('')
-        html = page.tagb('html')
+        doc = with_html_stack.HTMLDocument()
+        doc('!DOCTYPE', html=None)
 
-        with html.tagb('head') as h:
-            h.tagl('title', 'Error: path not found')
-            h.tagl('meta', xxhttp_equiv='Content-type', content='text/html; charset=utf-8')
+        with doc('html', lang='en'):
+            with doc('head'):
+                doc('title', 'Error: path not found')
+                doc('meta', _http_equiv='Content-type', content='text/html; charset=utf-8')
+            with doc('body'):
+                doc('h1', 'Error: path not found')
+                doc('p', 'No path found on server: ' + escape(self.path))
+                doc('a', 'Go to start page', href='/')
 
-        html.rawl('')
-        with html.tagb('body') as b:
-            b.tagl('h1', 'Error: path not found')
-            b.tagl('p', 'No path found on server: ' + escape(self.path))
-            b.tagl('a', 'Go to start page', href='/')
-
-        content = bytes(page.text(with_html.TextParams()), 'UTF-8')
+        content = bytes(doc.text(with_html_stack.DEV_PARAMS), 'UTF-8')
 
         self.send_header('Content-Length', int(len(content)))
         self.end_headers()
