@@ -16,6 +16,10 @@ class ExampleHanler(JSONHandler):
         self.do_POST()
 
     def do_POST(self):
+        self.host = self.headers['Host']
+        if '://' not in self.host:
+            self.host = self.protocol_version.rsplit('/', 1)[0].lower() + '://' + self.host
+
         try:
             if self.path == '/':
                 self.show_index()
@@ -28,8 +32,8 @@ class ExampleHanler(JSONHandler):
 
     def show_index(self):
         return self.return_json(HTTPStatus.OK, {
-            'index': '/',
-            'sleeper': '/sleep',
+            'index': self.host + '/',
+            'sleeper': self.host + '/sleep',
         })
 
     def show_sleep(self):
