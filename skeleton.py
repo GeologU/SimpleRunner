@@ -2,8 +2,7 @@
 
 from html import escape
 from http import HTTPStatus
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import subprocess
 
 import with_html_stack
@@ -106,13 +105,9 @@ class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
 
-class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
-    pass
-
-
-def run(server_class=ThreadingHTTPServer, handler_class=SmallHTTPRequestHandler):
+def run():
     server_address = ('', 8000)
-    httpd = server_class(server_address, handler_class)
+    httpd = ThreadingHTTPServer(server_address, SmallHTTPRequestHandler)
     httpd.serve_forever()
 
 
