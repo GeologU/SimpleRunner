@@ -89,9 +89,9 @@ class TestTextParams(unittest.TestCase):
     def test_text_dev_params(self):
         p = with_html_stack.DEV_PARAMS.inner
         self.assertEqual(p.text([
-                '\rfirst line',
-                '\tsecond line',
-                ' third line',
+            '\rfirst line',
+            '\tsecond line',
+            ' third line',
             ]), '''\
     \rfirst line
     \tsecond line
@@ -100,9 +100,9 @@ class TestTextParams(unittest.TestCase):
 
         p = with_html_stack.DEV_PARAMS.inner
         self.assertEqual(p.text([
-                '\tfirst line',
-                '\t\tsecond line',
-                '\tthird line',
+            '\tfirst line',
+            '\t\tsecond line',
+            '\tthird line',
             ], '-p-', '-s-'), '''\
     -p-first line-s-
     \t-p-second line-s-
@@ -117,17 +117,19 @@ class TestTextParams(unittest.TestCase):
 
     def test_text_prod_params(self):
         p = with_html_stack.PROD_PARAMS.inner
-        self.assertEqual(p.text([
+        self.assertEqual(
+            p.text([
                 '\tfirst line',
                 '\t\tsecond line',
                 '\tthird line',
-            ], '-p-', '-s-'),
+                ], '-p-', '-s-'),
             '-p-first line-s-\t-p-second line-s--p-third line-s-'
         )
 
     def test_none_fix(self):
         p = with_html_stack.PROD_PARAMS.inner
-        self.assertEqual(p.text([
+        self.assertEqual(
+            p.text([
                 '\tfirst line',
                 '\t\tsecond line',
                 '\tthird line',
@@ -245,18 +247,18 @@ class TestHTMLAttribute(unittest.TestCase):
         # input data produced with:
         # >>> list(itertools.product(('attr', '_complex_name'), ('value', '<value>', None), (True, False), ('',)))
         for attr, value, escape, expected in [
-            ('attr', 'value', True, 'attr="value"'),
-            ('attr', 'value', False, 'attr="value"'),
-            ('attr', '<value>', True, 'attr="&lt;value&gt;"'),
-            ('attr', '<value>', False, 'attr="<value>"'),
-            ('attr', None, True, 'attr'),
-            ('attr', None, False, 'attr'),
-            ('_complex_name', 'value', True, 'complex-name="value"'),
-            ('_complex_name', 'value', False, 'complex-name="value"'),
-            ('_complex_name', '<value>', True, 'complex-name="&lt;value&gt;"'),
-            ('_complex_name', '<value>', False, 'complex-name="<value>"'),
-            ('_complex_name', None, True, 'complex-name'),
-            ('_complex_name', None, False, 'complex-name')
+                ('attr', 'value', True, 'attr="value"'),
+                ('attr', 'value', False, 'attr="value"'),
+                ('attr', '<value>', True, 'attr="&lt;value&gt;"'),
+                ('attr', '<value>', False, 'attr="<value>"'),
+                ('attr', None, True, 'attr'),
+                ('attr', None, False, 'attr'),
+                ('_complex_name', 'value', True, 'complex-name="value"'),
+                ('_complex_name', 'value', False, 'complex-name="value"'),
+                ('_complex_name', '<value>', True, 'complex-name="&lt;value&gt;"'),
+                ('_complex_name', '<value>', False, 'complex-name="<value>"'),
+                ('_complex_name', None, True, 'complex-name'),
+                ('_complex_name', None, False, 'complex-name')
         ]:
             with self.subTest(attr=attr, value=value, escape=escape, expected=expected):
                 self.assertEqual(
@@ -273,18 +275,18 @@ class TestHTMLAttribute(unittest.TestCase):
         # input data produced with:
         # >>> list(itertools.product(('attr', '_complex_name'), ('value', '<value>', None), (True, False), ('',)))
         for attr, value, escape, expected in [
-            ('attr', 'value', True, "attr='value'"),
-            ('attr', 'value', False, "attr='value'"),
-            ('attr', '<value>', True, "attr=html.escape('<value>')"),
-            ('attr', '<value>', False, "attr='<value>'"),
-            ('attr', None, True, 'attr=None'),
-            ('attr', None, False, 'attr=None'),
-            ('_complex_name', 'value', True, "_complex_name='value'"),
-            ('_complex_name', 'value', False, "_complex_name='value'"),
-            ('_complex_name', '<value>', True, "_complex_name=html.escape('<value>')"),
-            ('_complex_name', '<value>', False, "_complex_name='<value>'"),
-            ('_complex_name', None, True, '_complex_name=None'),
-            ('_complex_name', None, False, '_complex_name=None')
+                ('attr', 'value', True, "attr='value'"),
+                ('attr', 'value', False, "attr='value'"),
+                ('attr', '<value>', True, "attr=html.escape('<value>')"),
+                ('attr', '<value>', False, "attr='<value>'"),
+                ('attr', None, True, 'attr=None'),
+                ('attr', None, False, 'attr=None'),
+                ('_complex_name', 'value', True, "_complex_name='value'"),
+                ('_complex_name', 'value', False, "_complex_name='value'"),
+                ('_complex_name', '<value>', True, "_complex_name=html.escape('<value>')"),
+                ('_complex_name', '<value>', False, "_complex_name='<value>'"),
+                ('_complex_name', None, True, '_complex_name=None'),
+                ('_complex_name', None, False, '_complex_name=None')
         ]:
             with self.subTest(attr=attr, value=value, escape=escape, expected=expected):
                 self.assertEqual(
@@ -293,11 +295,269 @@ class TestHTMLAttribute(unittest.TestCase):
                 )
 
 
+class TestHTMLTag(unittest.TestCase):
+
+    def test_text_attributes(self):
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', href='http://&&.ru', _id='ID', non=None).text_attributes(),
+            ' href="http://&&.ru" id="ID" non',
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a').text_attributes(),
+            ''
+        )
+
+    def test_text_error(self):
+        with self.assertRaises(RuntimeError) as e:
+            self.assertEqual(
+                with_html_stack.HTMLTag('!DOCTYPE').text(params=with_html_stack.PROD_PARAMS, raw='raw'),
+                ''
+            )
+        self.assertEqual(
+            str(e.exception),
+            'there may be no HTML in tag name starting with "!"',
+        )
+
+    def test_text(self):
+        self.assertEqual(
+            with_html_stack.HTMLTag('!a').text(params=with_html_stack.PROD_PARAMS),
+            '<!a>'
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a').text(params=with_html_stack.PROD_PARAMS),
+            '<a/>'
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', color='red').text(params=with_html_stack.PROD_PARAMS),
+            '<a color="red"/>'
+        )
+
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', color='red').text(
+                params=with_html_stack.PROD_PARAMS, raw='I am\n<p>inner html</p>.'
+            ),
+            '<a color="red">I am\n<p>inner html</p>.</a>'
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', color='red').text(
+                params=with_html_stack.DEV_PARAMS, raw='I am\n<p>inner html</p>.'
+            ),
+            '''<a color="red">
+I am
+<p>inner html</p>.
+</a>
+'''
+        )
+
+    def test_code_attributes(self):
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', href='http://&&.ru', _id='ID', non=None).code_attributes(),
+            ", href='http://&&.ru', _id='ID', non=None",
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', href='http://&amp;&amp;.ru', _id='ID', non=None).code_attributes(),
+            ", href=html.escape('http://&&.ru'), _id='ID', non=None",
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a').code_attributes(),
+            ''
+        )
+
+    def test_code_error(self):
+        with self.assertRaises(RuntimeError) as e:
+            self.assertEqual(
+                with_html_stack.HTMLTag('!DOCTYPE').code(params=with_html_stack.PROD_PARAMS, raw='raw'),
+                ''
+            )
+        self.assertEqual(
+            str(e.exception),
+            'there may be no HTML in tag name starting with "!"',
+        )
+
+    def test_code(self):
+        self.assertEqual(
+            with_html_stack.HTMLTag('!a').code(params=with_html_stack.PROD_PARAMS),
+            "doc('!a')"
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a').code(params=with_html_stack.PROD_PARAMS),
+            "doc('a')"
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', color='red').code(params=with_html_stack.PROD_PARAMS),
+            "doc('a', color='red')"
+        )
+
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', color='red').code(params=with_html_stack.PROD_PARAMS, raw='I am\n<p>inner html</p>.'),
+            "doc('a', color='red', raw='I am\\n<p>inner html</p>.')"
+        )
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', color='red').code(
+                params=with_html_stack.DEV_PARAMS, raw='I am\n<p>inner html</p>.'
+            ),
+            "doc('a', color='red', raw='I am\\n<p>inner html</p>.')\n"
+        )
+
+        # HTMLDocument prepares raw with proper indent
+        self.assertEqual(
+            with_html_stack.HTMLTag('a', color='red').code(
+                params=with_html_stack.DEV_PARAMS, raw='I am\n<p>inner html</p>.', with_statement=True
+            ),
+            """with doc('a', color='red'):
+I am
+<p>inner html</p>.
+"""
+        )
+
+
+class TestHTMLNode(unittest.TestCase):
+
+    def test_root(self):
+        node = with_html_stack.HTMLNode(tag=with_html_stack.HTMLTag('br'))
+        self.assertIs(node.root(), node)
+
+        node2 = with_html_stack.HTMLNode(parent=node, tag=with_html_stack.HTMLTag('tr'))
+        node3 = with_html_stack.HTMLNode(parent=node2, tag=with_html_stack.HTMLTag('a'))
+        self.assertIs(node3.root(), node)
+
+    def test_verify_parent(self):
+        node = with_html_stack.HTMLNode(tag=with_html_stack.HTMLTag('br'))
+        node2 = with_html_stack.HTMLNode(parent=None, tag=with_html_stack.HTMLTag('tr'))
+        node3 = with_html_stack.HTMLNode(parent=node, tag=with_html_stack.HTMLTag('tr'))
+        node4 = with_html_stack.HTMLNode(parent='parent', tag=with_html_stack.HTMLTag('tr'))
+
+        node2.verify()
+        node3.verify()
+
+        with self.assertRaises(RuntimeError) as e:
+            node4.verify()
+        self.assertEqual(str(e.exception), 'HTMLNode instance or None expected as "parent" parameter value')
+
+    def test_verify_raw(self):
+        node1 = with_html_stack.HTMLNode(raw=None)
+        node2 = with_html_stack.HTMLNode(raw=with_html_stack.HTMLRaw('raw'))
+        node3 = with_html_stack.HTMLNode(raw='raw')
+
+        node1.verify()
+        node2.verify()
+
+        with self.assertRaises(RuntimeError) as e:
+            node3.verify()
+        self.assertEqual(str(e.exception), 'HTMLRaw instance expected as "raw" parameter value')
+
+    def test_verify_tag(self):
+        node1 = with_html_stack.HTMLNode(tag=None)
+        node2 = with_html_stack.HTMLNode(tag=with_html_stack.HTMLTag('a'))
+        node3 = with_html_stack.HTMLNode(tag='tag')
+
+        node1.verify()
+        node2.verify()
+
+        with self.assertRaises(RuntimeError) as e:
+            node3.verify()
+        self.assertEqual(str(e.exception), 'HTMLTag instance expected as "tag" parameter value')
+
+    def test_verify_children(self):
+        node1 = with_html_stack.HTMLNode()
+        node2 = with_html_stack.HTMLNode()
+        node2.children = [with_html_stack.HTMLNode(tag='a')]
+        node3 = with_html_stack.HTMLNode()
+        node3.children = ['node', with_html_stack.HTMLNode(tag='a')]
+
+        node1.verify()
+        node2.verify()
+
+        with self.assertRaises(RuntimeError) as e:
+            node3.verify()
+        self.assertEqual(str(e.exception), 'HTMLNode instance expected as children item')
+
+    def test_verify_other(self):
+        node = with_html_stack.HTMLNode(raw=with_html_stack.HTMLRaw('raw'))
+        node.children = [with_html_stack.HTMLNode(tag='a')]
+
+        with self.assertRaises(RuntimeError) as e:
+            node.verify()
+        self.assertEqual(str(e.exception), "node can't contain HTML and children nodes at the same time")
+
+    def test_text(self):
+        node = with_html_stack.HTMLNode()
+        self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), '')
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag('a', color='red')
+        self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), '<a color="red"/>')
+
+        node = with_html_stack.HTMLNode()
+        node.node_raw = with_html_stack.HTMLRaw('raw html')
+        self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), 'raw html')
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag('a', color='red')
+        node.node_raw = with_html_stack.HTMLRaw('raw html')
+        self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag('a', color='red')
+        node.node_raw = with_html_stack.HTMLRaw('raw html')
+        self.assertEqual(node.text(params=with_html_stack.DEV_PARAMS), '<a color="red">\n    raw html\n</a>\n')
+
+        with self.assertRaises(RuntimeError) as e:
+            node = with_html_stack.HTMLNode()
+            node.node_tag = with_html_stack.HTMLTag('a', color='red')
+            node.node_raw = with_html_stack.HTMLRaw('raw html')
+            node.children = [with_html_stack.HTMLNode()]
+            self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
+        self.assertEqual(str(e.exception), "node can't contain HTML and children nodes at the same time")
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag('a', color='red')
+        node.children = [with_html_stack.HTMLNode(tag=with_html_stack.HTMLTag('br'))]
+        self.assertEqual(node.text(params=with_html_stack.DEV_PARAMS), '<a color="red">\n    <br/>\n</a>\n')
+
+    def test_code(self):
+        node = with_html_stack.HTMLNode()
+        self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), '')
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag('a', color='red')
+        self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), "doc('a', color='red')")
+
+        node = with_html_stack.HTMLNode()
+        node.node_raw = with_html_stack.HTMLRaw('raw html')
+        self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), 'raw html')
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag('a', color='red')
+        node.node_raw = with_html_stack.HTMLRaw('raw html')
+        self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), "doc('a', color='red', raw='raw html')")
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag('a', color='red')
+        node.node_raw = with_html_stack.HTMLRaw('raw html')
+        self.assertEqual(
+            node.code(params=with_html_stack.DEV_PARAMS),
+            "with doc('a', color='red'):\n    doc.raw('raw html')\n",
+        )
+
+        with self.assertRaises(RuntimeError) as e:
+            node = with_html_stack.HTMLNode()
+            node.node_tag = with_html_stack.HTMLTag('a', color='red')
+            node.node_raw = with_html_stack.HTMLRaw('raw html')
+            node.children = [with_html_stack.HTMLNode()]
+            self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
+        self.assertEqual(str(e.exception), "node can't contain HTML and children nodes at the same time")
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag('a', color='red')
+        node.children = [with_html_stack.HTMLNode(tag=with_html_stack.HTMLTag('br'))]
+        self.assertEqual(node.code(params=with_html_stack.DEV_PARAMS), "with doc('a', color='red'):\n    doc('br')\n")
+
+
 class TestHTMLDocument(unittest.TestCase):
 
     def setUp(self):
         doc = with_html_stack.HTMLDocument()
-        doc('!doctype', html=None)
         with doc('html', lang='en'):
             with doc('head'):
                 doc('title', raw='Example Domain')
@@ -313,9 +573,9 @@ class TestHTMLDocument(unittest.TestCase):
                             doc.raw('More information')
         self.doc = doc
 
-    def test_dev(self):
+    def test_text_dev(self):
         self.assertEqual(self.doc.text(with_html_stack.DEV_PARAMS), '''\
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>
@@ -342,24 +602,44 @@ class TestHTMLDocument(unittest.TestCase):
 </html>
 ''')
 
-    def test_prod(self):
+    def test_text_prod(self):
         self.assertEqual(self.doc.text(with_html_stack.PROD_PARAMS), '''\
-<!doctype html><html lang="en"><head><title>Example Domain</title><meta charset="utf-8"/></head><body><div><h1>Example Domain</h1><p>This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.</p><p><a href="https://www.iana.org/domains/example">More information</a></p></div></body></html>''')
+<!DOCTYPE html><html lang="en"><head><title>Example Domain</title><meta charset="utf-8"/></head><body><div><h1>Example Domain</h1><p>This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.</p><p><a href="https://www.iana.org/domains/example">More information</a></p></div></body></html>''')
+
+    def test_code(self):
+        self.maxDiff = None
+        self.assertEqual(self.doc.code(), '''\
+doc('!DOCTYPE', html=None)
+with doc('html', lang='en'):
+    with doc('head'):
+        with doc('title'):
+            doc.raw('Example Domain')
+        doc('meta', charset='utf-8')
+    with doc('body'):
+        with doc('div'):
+            with doc('h1'):
+                doc.raw('Example Domain')
+            with doc('p'):
+                doc.raw('This domain is for use in illustrative examples in documents. You ')
+                doc.raw('may use this domain in literature without prior coordination or asking for permission.')
+            with doc('p'):
+                with doc('a', href='https://www.iana.org/domains/example'):
+                    doc.raw('More information')
+''')
 
     def test_append(self):
-        head = with_html_stack.HTMLDocument()
+        head = with_html_stack.HTMLDocument(doctype=False)
         with head('head'):
             head('title', raw='Example Domain')
             head('meta', charset='utf-8')
 
-        content = with_html_stack.HTMLDocument()
+        content = with_html_stack.HTMLDocument(doctype=False)
         content('h1', raw='Example Domain')
         with content('p'):
             content.raw('This domain is for use in illustrative examples in documents. You ')
             content.raw('may use this domain in literature without prior coordination or asking for permission.')
 
         doc = with_html_stack.HTMLDocument()
-        doc('!doctype', html=None)
         with doc('html', lang='en'):
             doc.append(head)
             with doc('body'):
@@ -370,7 +650,7 @@ class TestHTMLDocument(unittest.TestCase):
                             doc.raw('More information')
 
         self.assertEqual(doc.text(with_html_stack.DEV_PARAMS), '''\
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>

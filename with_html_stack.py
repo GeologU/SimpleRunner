@@ -164,6 +164,8 @@ class HTMLTag:
 
         ret = params.line(prefix + '>')
         ret += raw
+        if params.newline and not ret.endswith(params.newline):
+            ret += params.newline
         ret += params.line('</{}>'.format(self.name))
         return ret
 
@@ -174,22 +176,24 @@ class HTMLTag:
         return ret
 
     def code(self, params: TextParams, raw: Optional[str] = None, with_statement: bool = False) -> str:
-        safe_name = to_safe_name(name)
-        prefix = 'doc(' + safe_name + self.code_attributes() + ')'
+        safe_name = to_safe_name(self.name)
+        prefix = 'doc(' + html_as_code(safe_name) + self.code_attributes()
 
         if self.name.startswith('!'):
             if raw is not None:
                 raise RuntimeError('there may be no HTML in tag name starting with "!"')
-            return params.line(prefix)
+            return params.line(prefix + ')')
 
         if raw is None:
-            return params.line(prefix)
+            return params.line(prefix + ')')
 
         if not with_statement:
-            return params.line('doc(' + safe_name + ', raw=' + html_as_code(raw) + self.code_attributes() + ')')
+            return params.line(prefix + ', raw=' + html_as_code(raw) + ')')
 
-        ret = params.line('with ' + prefix + ':')
+        ret = params.line('with ' + prefix + '):')
         ret += raw
+        if params.newline and not ret.endswith(params.newline):
+            ret += params.newline
         return ret
 
 
@@ -221,6 +225,10 @@ class HTMLNode:
         if self.node_raw is not None and self.children:
             raise RuntimeError("node can't contain HTML and children nodes at the same time")
 
+        for item in self.children:
+            if not isinstance(item, HTMLNode):
+                raise RuntimeError('HTMLNode instance expected as children item')
+
     def text(self, params: TextParams):
         self.verify()
 
@@ -233,23 +241,32 @@ class HTMLNode:
             children_raw = None
 
         if self.node_tag is None:
-            return children_raw
-        return self.node_tag.text(params, children_raw)
+            result = children_raw
+        else:
+            result = self.node_tag.text(params, children_raw)
+        return result if result is not None else ''
 
     def code(self, params: TextParams):
         self.verify()
+
+        with_statement = bool(params.newline)
 
         children_params = params if self.node_tag is None else params.inner
         if self.children:
             children_raw = ''.join(x.code(children_params) for x in self.children)
         elif self.node_raw is not None:
-            children_raw = self.node_raw.text(children_params)
+            if with_statement:
+                children_raw = self.node_raw.code(children_params)
+            else:
+                children_raw = self.node_raw.text(children_params)
         else:
             children_raw = None
 
         if self.node_tag is None:
-            return children_raw
-        return self.node_tag.code(params, children_raw)
+            result = children_raw
+        else:
+            result = self.node_tag.code(params, children_raw, with_statement=with_statement)
+        return result if result is not None else ''
 
 
 class HTMLDocument:
@@ -257,7 +274,7 @@ class HTMLDocument:
 
     >>> from with_html_stack import HTMLDocument, DEV_PARAMS, PROD_PARAMS
     >>> doc = HTMLDocument(doctype=False)
-    >>> doc('!doctype', html=None)      # doctest: +ELLIPSIS
+    >>> doc('!DOCTYPE', html=None)      # doctest: +ELLIPSIS
     <with_html_stack.HTMLDocument object at 0x...>
     >>> with doc('html', lang='en'):    # doctest: +ELLIPSIS
     ...     with doc('head'):
@@ -278,7 +295,7 @@ class HTMLDocument:
     <with_html_stack.HTMLDocument object at 0x...>
 
     >>> print(doc.text(DEV_PARAMS))
-    <!doctype html>
+    <!DOCTYPE html>
     <html lang="en">
         <head>
             <title>
@@ -306,7 +323,7 @@ class HTMLDocument:
     <BLANKLINE>
 
     >>> print(doc.text(PROD_PARAMS))
-    <!doctype html><html lang="en"><head><title>Example Domain</title><meta charset="utf-8"/></head><body><div><h1>Example Domain</h1><p>This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.</p><p><a href="https://www.iana.org/domains/example">More information</a></p></div></body></html>
+    <!DOCTYPE html><html lang="en"><head><title>Example Domain</title><meta charset="utf-8"/></head><body><div><h1>Example Domain</h1><p>This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.</p><p><a href="https://www.iana.org/domains/example">More information</a></p></div></body></html>
     """
 
     def __init__(self, doctype: bool = True) -> None:
@@ -358,6 +375,9 @@ class HTMLDocument:
 
     def text(self, params: TextParams) -> str:
         return self.node.root().text(params)
+
+    def code(self) -> str:
+        return self.node.root().code(DEV_PARAMS)
 
     def content(self, params: TextParams = PROD_PARAMS, coding: str = 'UTF-8') -> bytes:
         return bytes(self.text(params), coding)
