@@ -237,3 +237,26 @@ The HTML is generated, because it's easier for me to write nested tags.
 #### skeleton_json.py
 
 Refactoring of skeleton.py (even easier) to work with text and JSON API only. See also `skeleton_json_example.py`.
+
+#### requirements.in, requirements.txt, requirements.sh
+
+Dependencies to run `lint.sh`. Start with the comments in `requirements.sh`.
+
+#### lint.sh
+
+Run `isort`, `black`, `pylint` and `mypy` sequentially on the `.py` file.
+`isort` and `black` will correct the file in place.
+If there is data from `pylint` (`mypy`), `vim' will open two files: `.py` and `pylint` (`mypy`) comments
+If the `.py` file is changed at some step, the script will exit with an error, because other (manual) changes may be required.
+Intended cycle: launch -> edits in progress -> error -> launch -> edits in progress -> error -> launch -> no more edits -> finished improving `.py`.
+
+```bash
+$ ./lint.sh skeleton.py
+Run isort (utility to sort Python imports) on skeleton.py
+Run pylint (python code static checker) on skeleton.py
+Файлов для редактирования: 2
+Run black (the uncompromising code formatter) on skeleton.py
+All done! ✨ 🍰 ✨
+1 file left unchanged.
+Run mypy (static typing for Python) on skeleton.py
+```
