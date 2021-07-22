@@ -11,6 +11,7 @@
     - [Очень полезный момент](#py-note)
     - [with_html_stack.py и его блочные тесты with_html_stack_ut.py](#with_html_stackpy-with_html_stack_utpy)
     - [skeleton_json.py](#skeleton_jsonpy)
+ - [lint.sh](#lintsh)
 
 ### toc-1 Несколько общих слов
 
