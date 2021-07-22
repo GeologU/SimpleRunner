@@ -39,23 +39,26 @@ Complement PS1 (prompt line [Bash](http://www.gnu.org/software/bash/manual/bashr
  - shows the line `user@host:/path`, so that it can be immediately copied in arguments of commands like `scp`;
  - shows the time for displaying the prompt line so that you can judge the start and end time of the commands;
  - shows the result of the previous command with the name of the signal that interrupted it;
- - highlights the result of a successful command in a green, unsuccessful in a red color.
+ - highlights the result of a successful command in a green, unsuccessful in a red color even for several commands in pipeline.
 
 ```bash
-* $?=0 | 2017-09-06 17:43:53 | alex@r5h:/home/alex *
 $ true
 
-* $?=0 | 2017-09-06 17:43:57 | alex@r5h:/home/alex *
+* $? = 0 | 2021-07-23 00:08:25 | alex@r9h:/home/alex/git/SimpleRunner *
 $ false
 
-* $?=1 | 2017-09-06 17:44:00 | alex@r5h:/home/alex *
+* $? = 1 | 2021-07-23 00:08:27 | alex@r9h:/home/alex/git/SimpleRunner *
 $
 
-* $?=0 | 2017-09-06 17:46:02 | alex@r5h:/home/alex *
+* $? = 1 | 2021-07-23 00:08:31 | alex@r9h:/home/alex/git/SimpleRunner *
 $ sleep 20
-Completed 
+^C
 
-* $?=SIGTERM | 2017-09-06 17:46:38 | alex@r5h:/home/alex *
+* $? = SIGINT | 2021-07-23 00:08:38 | alex@r9h:/home/alex/git/SimpleRunner *
+$ echo hi | grep by | wc -l
+0
+
+* $? = 0 1 0 | 2021-07-23 00:08:43 | alex@r9h:/home/alex/git/SimpleRunner *
 $
 ```
 
@@ -238,15 +241,11 @@ The HTML is generated, because it's easier for me to write nested tags.
 
 Refactoring of skeleton.py (even easier) to work with text and JSON API only. See also `skeleton_json_example.py`.
 
-#### requirements.in, requirements.txt, requirements.sh
-
-Dependencies to run `lint.sh`. Start with the comments in `requirements.sh`.
-
-#### lint.sh
+### lint.sh
 
 Run `isort`, `black`, `pylint` and `mypy` sequentially on the `.py` file.
 `isort` and `black` will correct the file in place.
-If there is data from `pylint` (`mypy`), `vim' will open two files: `.py` and `pylint` (`mypy`) comments
+If there is data from `pylint` (`mypy`), `vim` will open two files: `.py` and `pylint` (`mypy`) comments.
 If the `.py` file is changed at some step, the script will exit with an error, because other (manual) changes may be required.
 Intended cycle: launch -> edits in progress -> error -> launch -> edits in progress -> error -> launch -> no more edits -> finished improving `.py`.
 
@@ -260,3 +259,7 @@ All done! ✨ 🍰 ✨
 1 file left unchanged.
 Run mypy (static typing for Python) on skeleton.py
 ```
+
+#### requirements.in, requirements.txt, requirements.sh
+
+Dependencies to run `lint.sh`. Start with the comments in `requirements.sh`.
