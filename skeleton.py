@@ -1,115 +1,49 @@
-#!/usr/bin/env python3
-
-from html import escape
+import json
 from http import HTTPStatus
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-import subprocess
-
-import with_html_stack
+from http.server import BaseHTTPRequestHandler
+from typing import Optional
 
 
-class SmallHTTPRequestHandler(BaseHTTPRequestHandler):
+class PreHandler(BaseHTTPRequestHandler):
+    def return_content(
+        self,
+        status: HTTPStatus,
+        content_type: str,
+        content: bytes,
+        headers: Optional[dict] = None,
+    ) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(content)))
 
-    def do_GET(self):
-        self.do_POST()
-
-    def do_POST(self):
-        if self.path == '/':
-            self.show_index()
-        elif self.path == '/command/':
-            self.show_commands()
-        elif self.path == '/schema/':
-            self.show_schema()
-        else:
-            self.show_bad_path()
-
-    def show_index(self):
-        self.send_response(HTTPStatus.OK)
-        self.send_header('Content-Type', 'text/html')
-
-        doc = with_html_stack.HTMLDocument()
-        with doc('html', lang='en'):
-            with doc('head'):
-                doc('title', 'Select your task')
-                doc('meta', _http_equiv='Content-type', content='text/html; charset=utf-8')
-            with doc('body'):
-                with doc('p'):
-                    doc('a', 'View commands', href='/command/')
-                with doc('p'):
-                    doc('a', 'View dependencies of commands', href='/schema/')
-        content = doc.content(with_html_stack.DEV_PARAMS)
-
-        self.send_header('Content-Length', int(len(content)))
+        if headers is not None:
+            for key, value in headers.items():
+                self.send_header(key, value)
         self.end_headers()
+
         self.wfile.write(content)
 
-    def show_commands(self):
-        commands = []
-        output = subprocess.check_output(['./skeleton.sh', 'usage']).decode()
-        for item in output.splitlines():
-            x = item.split(maxsplit=1)
-            if len(x) == 2:
-                commands.append(x)
+    def read_data(self) -> Optional[bytes]:
+        data_size = self.headers["Content-Length"]
+        if data_size:
+            return self.rfile.read(int(data_size))
+        return None
 
-        self.send_response(HTTPStatus.OK)
-        self.send_header('Content-Type', 'text/html')
-
-        doc = with_html_stack.HTMLDocument()
-        with doc('html', lang='en'):
-            with doc('head'):
-                doc('title', 'Select your task')
-                doc('meta', _http_equiv='Content-type', content='text/html; charset=utf-8')
-                with doc('style'):
-                    doc.raw('table, td {border: 1px solid gray; border-collapse: collapse;}')
-            with doc('body'):
-                with doc('p'):
-                    doc('a', 'Go to start page', href='/')
-                with doc('table'):
-                    doc('caption', 'Available commands')
-                    for command, description in commands:
-                        with doc('tr'):
-                            doc('td', command)
-                            doc('td', description)
-        content = doc.content(with_html_stack.DEV_PARAMS)
-
-        self.send_header('Content-Length', int(len(content)))
-        self.end_headers()
-        self.wfile.write(content)
-
-    def show_schema(self):
-        svg = subprocess.check_output('./skeleton.sh _make_dot_file | dot -Tsvg', shell=True)
-
-        self.send_response(HTTPStatus.OK)
-        self.send_header('Content-Type', 'image/svg+xml; charset=us-ascii')
-        self.send_header('Content-Length', int(len(svg)))
-        self.end_headers()
-        self.wfile.write(svg)
-
-    def show_bad_path(self):
-        self.send_response(HTTPStatus.NOT_FOUND)
-        self.send_header('Content-Type', 'text/html')
-
-        doc = with_html_stack.HTMLDocument()
-        with doc('html', lang='en'):
-            with doc('head'):
-                doc('title', 'Error: path not found')
-                doc('meta', _http_equiv='Content-type', content='text/html; charset=utf-8')
-            with doc('body'):
-                doc('h1', 'Error: path not found')
-                doc('p', 'No path found on server: ' + escape(self.path))
-                doc('a', 'Go to start page', href='/')
-        content = doc.content(with_html_stack.DEV_PARAMS)
-
-        self.send_header('Content-Length', int(len(content)))
-        self.end_headers()
-        self.wfile.write(content)
+    @property
+    def host(self) -> str:
+        host = self.headers["Host"]
+        if "://" not in host:
+            host = self.protocol_version.rsplit("/", 1)[0].lower() + "://" + host
+        return host
 
 
-def run():
-    server_address = ('', 8000)
-    httpd = ThreadingHTTPServer(server_address, SmallHTTPRequestHandler)
-    httpd.serve_forever()
+class JSONHandler(PreHandler):
+    def return_json(self, status: HTTPStatus, obj: dict) -> None:
+        content = json.dumps(obj, indent=2, sort_keys=True, ensure_ascii=False).encode("UTF-8")
+        self.return_content(status, "application/json", content)
 
-
-if __name__ == '__main__':
-    run()
+    def read_json(self):
+        data = self.read_data()
+        if data is not None:
+            return json.loads(data)
+        return None

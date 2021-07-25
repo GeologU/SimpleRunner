@@ -10,7 +10,7 @@
     - [Adding new utilities](#adding-new-utilities)
     - [Very useful moment](#very-useful-moment)
     - [with_html_stack.py and its unit tests with_html_stack_ut.py](#with_html_stackpy-and-its-unit-tests-with_html_stack_utpy)
-    - [skeleton_json.py](#skeleton_jsonpy)
+    - [skeleton_example_json.py](#skeleton_example_jsonpy)
  - [lint.sh](#lintsh)
 
 ### Some common words
@@ -225,7 +225,7 @@ Do not forget about the convenience of moving from page to page:
  - on the main page add a reference to the new path;
  - on the new utility page add references to the main page and other potentially useful references.
 
-#### Very useful moment
+#### Pay attention
 
 Graphviz, used by us to visualize dependencies, allows us to create images in svg format with URLs.
 That is, the node name can be a link that can be opened in the browser.
@@ -238,9 +238,14 @@ There are a lot of libraries of this kind, I was interested to write myself.
 As an example of use see the end of the `with_html_stack_ut.py` and a few comments in the `with_html_stack.py`.
 The HTML is generated, because it's easier for me to write nested tags.
 
-#### skeleton_json.py
+#### skeleton_example_json.py
 
-Refactoring of skeleton.py (even easier) to work with text and JSON API only. See also `skeleton_json_example.py`.
+Usage example of `skeleton.py` when the server returns only JSON.
+We do not spend any effort even on minimal HTML.
+The trick is that Firefox (I won't say about other browsers) "out of the box" can display JSON beautifully.
+In particular you can click on links that are in JSON as on a regular HTML page.
+Unlike HTML, there are no forms for entering data, but it is easy to pre-create several links that may be interesting.
+In total you can show different text, you can easily switch between "pages" too and there are about zero overhead costs.
 
 ### lint.sh
 
