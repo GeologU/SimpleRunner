@@ -27,7 +27,11 @@ tmpfile="$(mktemp --tmpdir=. $(basename $0).XXXXXX)"
 trap "rm -f $tmpfile" EXIT
 
 echo "Run pylint (python code static checker) on $target"
-python3 -m pylint --exit-zero "$target" >$tmpfile
+python3 -m pylint \
+    --jobs 0 \
+    --exit-zero \
+    --max-line-length 120 \
+    "$target" >$tmpfile
 if [[ -s $tmpfile ]]; then
     vim -O $tmpfile "$target"
 fi
