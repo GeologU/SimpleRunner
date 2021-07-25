@@ -5,7 +5,7 @@
     - [Help](#help)
     - [Dependency graph](#dependency-graph)
     - [Helper functions](#helper-functions)
- - [skeleton.py](#skeletonpy)
+ - [skeleton.py (library) and skeleton_example_html.py (example)]
     - [Running](#running)
     - [Adding new utilities](#adding-new-utilities)
     - [Very useful moment](#very-useful-moment)
@@ -191,7 +191,7 @@ It is assumed that working with your commands these you leave as it is:
 
 Like `usage`, `svg` ignores functions whose name begins with an underscore.
 
-### skeleton.py
+### skeleton.py (library) and skeleton_example_html.py (example)
 
 The GUI can provide the user with a lot of heterogeneous information and many controls at the same time.
 Relatively simple, portable and understandable by a different user method is to use HTML and a browser.
@@ -204,15 +204,15 @@ additions can be used for real work.
 
 By default, a multi-threaded server is started on port 8000:
 ```bash
-$ ./skeleton.py
+$ ./skeleton_example_html.py
 127.0.0.1 - - [09 / Nov / 2017 05:16:21] "GET / HTTP / 1.1" 200 -
 ...
 ```
 Exit by Ctrl+c.
 
-If you are running from another node, for example `http: //example.com: 8000 /`, make sure that your network settings have the necessary permissions.
+If you are running from another node, for example `http://example.com:8000/`, make sure that your network settings have the necessary permissions.
 
-`skeleton.py` contains three pages:
+`skeleton_example_html.py` contains three pages:
  - `/` - contains references to the other two;
  - `/schema/` - shows a picture with dependencies from `./skeleton.sh svg`;
  - `/command/` - shows the table with commands from `./skeleton.sh usage` and their brief description.
@@ -232,12 +232,6 @@ That is, the node name can be a link that can be opened in the browser.
 In particular, this way you can run different commands by examining the schema in the browser.
 [Documentation](http://www.graphviz.org/content/attrs#dURL), [stackoverflow](https://stackoverflow.com/questions/15837283/graphviz-embedded-url).
 
-#### with_html_stack.py and its unit tests with_html_stack_ut.py
-
-There are a lot of libraries of this kind, I was interested to write myself.
-As an example of use see the end of the `with_html_stack_ut.py` and a few comments in the `with_html_stack.py`.
-The HTML is generated, because it's easier for me to write nested tags.
-
 #### skeleton_example_json.py
 
 Usage example of `skeleton.py` when the server returns only JSON.
@@ -246,6 +240,12 @@ The trick is that Firefox (I won't say about other browsers) "out of the box" ca
 In particular you can click on links that are in JSON as on a regular HTML page.
 Unlike HTML, there are no forms for entering data, but it is easy to pre-create several links that may be interesting.
 In total you can show different text, you can easily switch between "pages" too and there are about zero overhead costs.
+
+#### with_html_stack.py and its unit tests with_html_stack_ut.py
+
+There are a lot of libraries of this kind, I was interested to write myself.
+As an example of use see the end of the `with_html_stack_ut.py` and a few comments in the `with_html_stack.py`.
+The HTML is generated, because it's easier for me to write nested tags.
 
 ### lint.sh
 
