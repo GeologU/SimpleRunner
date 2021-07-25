@@ -102,11 +102,11 @@ class HTMLRaw:
         self.prefix = prefix
         self.suffix = suffix
 
-    def text(self, params: TextParams):
+    def as_text(self, params: TextParams):
         lines = self.raw.splitlines()
         return params.text(lines, self.prefix, self.suffix)
 
-    def code(self, params: TextParams) -> str:
+    def as_code(self, params: TextParams) -> str:
         prefix_suffix = ""
         if self.prefix != _DEFAULT_X_FIX:
             prefix_suffix += ", prefix={}".format(html_as_code(self.prefix))
@@ -119,7 +119,7 @@ class HTMLComment(HTMLRaw):
     def __init__(self, raw):
         super().__init__(raw, prefix="<!-- ", suffix=" -->")
 
-    def code(self, params: TextParams) -> str:
+    def as_code(self, params: TextParams) -> str:
         return params.line("doc.comment({})".format(html_as_code(self.raw)))
 
 
@@ -128,12 +128,12 @@ class HTMLAttribute:
         self.attribute = from_safe_name(attribute)
         self.value = html.escape(value) if (escape and value is not None) else value
 
-    def text(self):
+    def as_text(self):
         if self.value is None:
             return self.attribute
         return '{}="{}"'.format(self.attribute, self.value)
 
-    def code(self) -> str:
+    def as_code(self) -> str:
         return to_safe_name(self.attribute) + "=" + html_as_code(self.value)
 
 
@@ -143,12 +143,12 @@ class HTMLTag:
         self.attributes = [HTMLAttribute(k, v) for k, v in kwargs.items()]
 
     def text_attributes(self):
-        ret = " ".join([x.text() for x in self.attributes])
+        ret = " ".join([x.as_text() for x in self.attributes])
         if ret:
             ret = " " + ret
         return ret
 
-    def text(self, params: TextParams, raw: Optional[str] = None) -> str:
+    def as_text(self, params: TextParams, raw: Optional[str] = None) -> str:
         prefix = "<{}{}".format(self.name, self.text_attributes())
 
         if self.name.startswith("!"):
@@ -167,12 +167,12 @@ class HTMLTag:
         return ret
 
     def code_attributes(self):
-        ret = ", ".join([x.code() for x in self.attributes])
+        ret = ", ".join([x.as_code() for x in self.attributes])
         if ret:
             ret = ", " + ret
         return ret
 
-    def code(self, params: TextParams, raw: Optional[str] = None, with_statement: bool = False) -> str:
+    def as_code(self, params: TextParams, raw: Optional[str] = None, with_statement: bool = False) -> str:
         safe_name = to_safe_name(self.name)
         prefix = "doc(" + html_as_code(safe_name) + self.code_attributes()
 
@@ -224,25 +224,25 @@ class HTMLNode:
             if not isinstance(item, HTMLNode):
                 raise RuntimeError("HTMLNode instance expected as children item")
 
-    def text(self, params: TextParams):
+    def as_text(self, params: TextParams):
         self.verify()
 
         children_params = params if self.node_tag is None else params.inner
         children_raw: Optional[str]
         if self.children:
-            children_raw = "".join(x.text(children_params) for x in self.children)
+            children_raw = "".join(x.as_text(children_params) for x in self.children)
         elif self.node_raw is not None:
-            children_raw = self.node_raw.text(children_params)
+            children_raw = self.node_raw.as_text(children_params)
         else:
             children_raw = None
 
         if self.node_tag is None:
             result = children_raw
         else:
-            result = self.node_tag.text(params, children_raw)
+            result = self.node_tag.as_text(params, children_raw)
         return result if result is not None else ""
 
-    def code(self, params: TextParams):
+    def as_code(self, params: TextParams):
         self.verify()
 
         with_statement = bool(params.newline)
@@ -250,19 +250,19 @@ class HTMLNode:
         children_params = params if self.node_tag is None else params.inner
         children_raw: Optional[str]
         if self.children:
-            children_raw = "".join(x.code(children_params) for x in self.children)
+            children_raw = "".join(x.as_code(children_params) for x in self.children)
         elif self.node_raw is not None:
             if with_statement:
-                children_raw = self.node_raw.code(children_params)
+                children_raw = self.node_raw.as_code(children_params)
             else:
-                children_raw = self.node_raw.text(children_params)
+                children_raw = self.node_raw.as_text(children_params)
         else:
             children_raw = None
 
         if self.node_tag is None:
             result = children_raw
         else:
-            result = self.node_tag.code(params, children_raw, with_statement=with_statement)
+            result = self.node_tag.as_code(params, children_raw, with_statement=with_statement)
         return result if result is not None else ""
 
 
@@ -291,7 +291,7 @@ class HTMLDocument:
     <with_html_stack.HTMLDocument object at 0x...>
     <with_html_stack.HTMLDocument object at 0x...>
 
-    >>> print(doc.text(DEV_PARAMS))
+    >>> print(doc.as_text(DEV_PARAMS))
     <!DOCTYPE html>
     <html lang="en">
         <head>
@@ -319,7 +319,7 @@ class HTMLDocument:
     </html>
     <BLANKLINE>
 
-    >>> print(doc.text(PROD_PARAMS))
+    >>> print(doc.as_text(PROD_PARAMS))
     <!DOCTYPE html><html lang="en"><head><title>Example Domain</title><meta charset="utf-8"/></head><body><div><h1>Example Domain</h1><p>This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.</p><p><a href="https://www.iana.org/domains/example">More information</a></p></div></body></html>
     """
 
@@ -376,11 +376,11 @@ class HTMLDocument:
     def append(self, other: "HTMLDocument", deepcopy: bool = False) -> None:
         self.node.children.append(copy.deepcopy(other.node) if deepcopy else other.node)
 
-    def text(self, params: TextParams) -> str:
-        return self.node.root().text(params)
+    def as_text(self, params: TextParams) -> str:
+        return self.node.root().as_text(params)
 
-    def code(self) -> str:
-        return self.node.root().code(DEV_PARAMS)
+    def as_code(self) -> str:
+        return self.node.root().as_code(DEV_PARAMS)
 
     def content(self, params: TextParams = PROD_PARAMS, coding: str = "UTF-8") -> bytes:
-        return bytes(self.text(params), coding)
+        return bytes(self.as_text(params), coding)

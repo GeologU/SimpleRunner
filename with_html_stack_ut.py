@@ -147,62 +147,67 @@ class TestTextParams(unittest.TestCase):
 class TestHTMLRaw(unittest.TestCase):
     def test_text(self):
         raw = with_html_stack.HTMLRaw("some raw text", prefix="-p-", suffix="-s-")
-        self.assertEqual(raw.text(with_html_stack.DEV_PARAMS.inner), "    -p-some raw text-s-\n")
-        self.assertEqual(raw.text(with_html_stack.PROD_PARAMS), "-p-some raw text-s-")
+        self.assertEqual(raw.as_text(with_html_stack.DEV_PARAMS.inner), "    -p-some raw text-s-\n")
+        self.assertEqual(raw.as_text(with_html_stack.PROD_PARAMS), "-p-some raw text-s-")
 
         raw = with_html_stack.HTMLRaw("some multiline\nraw text\n", prefix="-p-", suffix="-s-")
-        self.assertEqual(raw.text(with_html_stack.DEV_PARAMS.inner), "    -p-some multiline-s-\n    -p-raw text-s-\n")
-        self.assertEqual(raw.text(with_html_stack.PROD_PARAMS), "-p-some multiline-s--p-raw text-s-")
+        self.assertEqual(
+            raw.as_text(with_html_stack.DEV_PARAMS.inner), "    -p-some multiline-s-\n    -p-raw text-s-\n"
+        )
+        self.assertEqual(raw.as_text(with_html_stack.PROD_PARAMS), "-p-some multiline-s--p-raw text-s-")
 
     def test_code(self):
         raw = with_html_stack.HTMLRaw("some raw text")
-        self.assertEqual(raw.code(with_html_stack.DEV_PARAMS.inner), "    doc.raw('some raw text')\n")
+        self.assertEqual(raw.as_code(with_html_stack.DEV_PARAMS.inner), "    doc.raw('some raw text')\n")
 
         raw = with_html_stack.HTMLRaw("some raw text", prefix="-p-", suffix="-s-")
         self.assertEqual(
-            raw.code(with_html_stack.DEV_PARAMS.inner), "    doc.raw('some raw text', prefix='-p-', suffix='-s-')\n"
+            raw.as_code(with_html_stack.DEV_PARAMS.inner), "    doc.raw('some raw text', prefix='-p-', suffix='-s-')\n"
         )
-        self.assertEqual(raw.code(with_html_stack.PROD_PARAMS), "doc.raw('some raw text', prefix='-p-', suffix='-s-')")
+        self.assertEqual(
+            raw.as_code(with_html_stack.PROD_PARAMS), "doc.raw('some raw text', prefix='-p-', suffix='-s-')"
+        )
 
         raw = with_html_stack.HTMLRaw("some multiline\nraw text\n", prefix="-p-", suffix="-s-")
         self.assertEqual(
-            raw.code(with_html_stack.DEV_PARAMS.inner),
+            raw.as_code(with_html_stack.DEV_PARAMS.inner),
             "    doc.raw('some multiline\\nraw text\\n', prefix='-p-', suffix='-s-')\n",
         )
         self.assertEqual(
-            raw.code(with_html_stack.PROD_PARAMS), "doc.raw('some multiline\\nraw text\\n', prefix='-p-', suffix='-s-')"
+            raw.as_code(with_html_stack.PROD_PARAMS),
+            "doc.raw('some multiline\\nraw text\\n', prefix='-p-', suffix='-s-')",
         )
 
 
 class TestHTMLComment(unittest.TestCase):
     def test_text(self):
         raw = with_html_stack.HTMLComment("some raw text")
-        self.assertEqual(raw.text(with_html_stack.DEV_PARAMS.inner), "    <!-- some raw text -->\n")
-        self.assertEqual(raw.text(with_html_stack.PROD_PARAMS), "<!-- some raw text -->")
+        self.assertEqual(raw.as_text(with_html_stack.DEV_PARAMS.inner), "    <!-- some raw text -->\n")
+        self.assertEqual(raw.as_text(with_html_stack.PROD_PARAMS), "<!-- some raw text -->")
 
         raw = with_html_stack.HTMLComment("some multiline\nraw text\n")
         self.assertEqual(
-            raw.text(with_html_stack.DEV_PARAMS.inner), "    <!-- some multiline -->\n    <!-- raw text -->\n"
+            raw.as_text(with_html_stack.DEV_PARAMS.inner), "    <!-- some multiline -->\n    <!-- raw text -->\n"
         )
-        self.assertEqual(raw.text(with_html_stack.PROD_PARAMS), "<!-- some multiline --><!-- raw text -->")
+        self.assertEqual(raw.as_text(with_html_stack.PROD_PARAMS), "<!-- some multiline --><!-- raw text -->")
 
     def test_code(self):
         raw = with_html_stack.HTMLComment("some raw text")
-        self.assertEqual(raw.code(with_html_stack.DEV_PARAMS.inner), "    doc.comment('some raw text')\n")
-        self.assertEqual(raw.code(with_html_stack.PROD_PARAMS), "doc.comment('some raw text')")
+        self.assertEqual(raw.as_code(with_html_stack.DEV_PARAMS.inner), "    doc.comment('some raw text')\n")
+        self.assertEqual(raw.as_code(with_html_stack.PROD_PARAMS), "doc.comment('some raw text')")
 
         raw = with_html_stack.HTMLComment("some multiline\nraw text\n")
         self.assertEqual(
-            raw.code(with_html_stack.DEV_PARAMS.inner), "    doc.comment('some multiline\\nraw text\\n')\n"
+            raw.as_code(with_html_stack.DEV_PARAMS.inner), "    doc.comment('some multiline\\nraw text\\n')\n"
         )
-        self.assertEqual(raw.code(with_html_stack.PROD_PARAMS), "doc.comment('some multiline\\nraw text\\n')")
+        self.assertEqual(raw.as_code(with_html_stack.PROD_PARAMS), "doc.comment('some multiline\\nraw text\\n')")
 
 
 class TestHTMLAttribute(unittest.TestCase):
     def test_test(self):
         # check default values
-        self.assertEqual(with_html_stack.HTMLAttribute("attr").text(), "attr")
-        self.assertEqual(with_html_stack.HTMLAttribute("attr", "<value>").text(), 'attr="<value>"')
+        self.assertEqual(with_html_stack.HTMLAttribute("attr").as_text(), "attr")
+        self.assertEqual(with_html_stack.HTMLAttribute("attr", "<value>").as_text(), 'attr="<value>"')
 
         # check various cases
         # input data produced with:
@@ -223,13 +228,13 @@ class TestHTMLAttribute(unittest.TestCase):
         ]:
             with self.subTest(attr=attr, value=value, escape=escape, expected=expected):
                 self.assertEqual(
-                    with_html_stack.HTMLAttribute(attribute=attr, value=value, escape=escape).text(), expected
+                    with_html_stack.HTMLAttribute(attribute=attr, value=value, escape=escape).as_text(), expected
                 )
 
     def test_code(self):
         # check default values
-        self.assertEqual(with_html_stack.HTMLAttribute("attr").code(), "attr=None")
-        self.assertEqual(with_html_stack.HTMLAttribute("attr", "<value>").code(), "attr='<value>'")
+        self.assertEqual(with_html_stack.HTMLAttribute("attr").as_code(), "attr=None")
+        self.assertEqual(with_html_stack.HTMLAttribute("attr", "<value>").as_code(), "attr='<value>'")
 
         # check various cases
         # input data produced with:
@@ -250,7 +255,7 @@ class TestHTMLAttribute(unittest.TestCase):
         ]:
             with self.subTest(attr=attr, value=value, escape=escape, expected=expected):
                 self.assertEqual(
-                    with_html_stack.HTMLAttribute(attribute=attr, value=value, escape=escape).code(), expected
+                    with_html_stack.HTMLAttribute(attribute=attr, value=value, escape=escape).as_code(), expected
                 )
 
 
@@ -265,7 +270,7 @@ class TestHTMLTag(unittest.TestCase):
     def test_text_error(self):
         with self.assertRaises(RuntimeError) as exc:
             self.assertEqual(
-                with_html_stack.HTMLTag("!DOCTYPE").text(params=with_html_stack.PROD_PARAMS, raw="raw"), ""
+                with_html_stack.HTMLTag("!DOCTYPE").as_text(params=with_html_stack.PROD_PARAMS, raw="raw"), ""
             )
         self.assertEqual(
             str(exc.exception),
@@ -273,20 +278,20 @@ class TestHTMLTag(unittest.TestCase):
         )
 
     def test_text(self):
-        self.assertEqual(with_html_stack.HTMLTag("!a").text(params=with_html_stack.PROD_PARAMS), "<!a>")
-        self.assertEqual(with_html_stack.HTMLTag("a").text(params=with_html_stack.PROD_PARAMS), "<a/>")
+        self.assertEqual(with_html_stack.HTMLTag("!a").as_text(params=with_html_stack.PROD_PARAMS), "<!a>")
+        self.assertEqual(with_html_stack.HTMLTag("a").as_text(params=with_html_stack.PROD_PARAMS), "<a/>")
         self.assertEqual(
-            with_html_stack.HTMLTag("a", color="red").text(params=with_html_stack.PROD_PARAMS), '<a color="red"/>'
+            with_html_stack.HTMLTag("a", color="red").as_text(params=with_html_stack.PROD_PARAMS), '<a color="red"/>'
         )
 
         self.assertEqual(
-            with_html_stack.HTMLTag("a", color="red").text(
+            with_html_stack.HTMLTag("a", color="red").as_text(
                 params=with_html_stack.PROD_PARAMS, raw="I am\n<p>inner html</p>."
             ),
             '<a color="red">I am\n<p>inner html</p>.</a>',
         )
         self.assertEqual(
-            with_html_stack.HTMLTag("a", color="red").text(
+            with_html_stack.HTMLTag("a", color="red").as_text(
                 params=with_html_stack.DEV_PARAMS, raw="I am\n<p>inner html</p>."
             ),
             """<a color="red">
@@ -310,7 +315,7 @@ I am
     def test_code_error(self):
         with self.assertRaises(RuntimeError) as exc:
             self.assertEqual(
-                with_html_stack.HTMLTag("!DOCTYPE").code(params=with_html_stack.PROD_PARAMS, raw="raw"), ""
+                with_html_stack.HTMLTag("!DOCTYPE").as_code(params=with_html_stack.PROD_PARAMS, raw="raw"), ""
             )
         self.assertEqual(
             str(exc.exception),
@@ -318,20 +323,21 @@ I am
         )
 
     def test_code(self):
-        self.assertEqual(with_html_stack.HTMLTag("!a").code(params=with_html_stack.PROD_PARAMS), "doc('!a')")
-        self.assertEqual(with_html_stack.HTMLTag("a").code(params=with_html_stack.PROD_PARAMS), "doc('a')")
+        self.assertEqual(with_html_stack.HTMLTag("!a").as_code(params=with_html_stack.PROD_PARAMS), "doc('!a')")
+        self.assertEqual(with_html_stack.HTMLTag("a").as_code(params=with_html_stack.PROD_PARAMS), "doc('a')")
         self.assertEqual(
-            with_html_stack.HTMLTag("a", color="red").code(params=with_html_stack.PROD_PARAMS), "doc('a', color='red')"
+            with_html_stack.HTMLTag("a", color="red").as_code(params=with_html_stack.PROD_PARAMS),
+            "doc('a', color='red')",
         )
 
         self.assertEqual(
-            with_html_stack.HTMLTag("a", color="red").code(
+            with_html_stack.HTMLTag("a", color="red").as_code(
                 params=with_html_stack.PROD_PARAMS, raw="I am\n<p>inner html</p>."
             ),
             "doc('a', color='red', raw='I am\\n<p>inner html</p>.')",
         )
         self.assertEqual(
-            with_html_stack.HTMLTag("a", color="red").code(
+            with_html_stack.HTMLTag("a", color="red").as_code(
                 params=with_html_stack.DEV_PARAMS, raw="I am\n<p>inner html</p>."
             ),
             "doc('a', color='red', raw='I am\\n<p>inner html</p>.')\n",
@@ -339,7 +345,7 @@ I am
 
         # HTMLDocument prepares raw with proper indent
         self.assertEqual(
-            with_html_stack.HTMLTag("a", color="red").code(
+            with_html_stack.HTMLTag("a", color="red").as_code(
                 params=with_html_stack.DEV_PARAMS, raw="I am\n<p>inner html</p>.", with_statement=True
             ),
             """with doc('a', color='red'):
@@ -419,61 +425,61 @@ class TestHTMLNode(unittest.TestCase):
 
     def test_text(self):
         node = with_html_stack.HTMLNode()
-        self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), "")
+        self.assertEqual(node.as_text(params=with_html_stack.PROD_PARAMS), "")
 
         node = with_html_stack.HTMLNode()
         node.node_tag = with_html_stack.HTMLTag("a", color="red")
-        self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), '<a color="red"/>')
+        self.assertEqual(node.as_text(params=with_html_stack.PROD_PARAMS), '<a color="red"/>')
 
         node = with_html_stack.HTMLNode()
         node.node_raw = with_html_stack.HTMLRaw("raw html")
-        self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), "raw html")
-
-        node = with_html_stack.HTMLNode()
-        node.node_tag = with_html_stack.HTMLTag("a", color="red")
-        node.node_raw = with_html_stack.HTMLRaw("raw html")
-        self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
+        self.assertEqual(node.as_text(params=with_html_stack.PROD_PARAMS), "raw html")
 
         node = with_html_stack.HTMLNode()
         node.node_tag = with_html_stack.HTMLTag("a", color="red")
         node.node_raw = with_html_stack.HTMLRaw("raw html")
-        self.assertEqual(node.text(params=with_html_stack.DEV_PARAMS), '<a color="red">\n    raw html\n</a>\n')
+        self.assertEqual(node.as_text(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
+
+        node = with_html_stack.HTMLNode()
+        node.node_tag = with_html_stack.HTMLTag("a", color="red")
+        node.node_raw = with_html_stack.HTMLRaw("raw html")
+        self.assertEqual(node.as_text(params=with_html_stack.DEV_PARAMS), '<a color="red">\n    raw html\n</a>\n')
 
         with self.assertRaises(RuntimeError) as exc:
             node = with_html_stack.HTMLNode()
             node.node_tag = with_html_stack.HTMLTag("a", color="red")
             node.node_raw = with_html_stack.HTMLRaw("raw html")
             node.children = [with_html_stack.HTMLNode()]
-            self.assertEqual(node.text(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
+            self.assertEqual(node.as_text(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
         self.assertEqual(str(exc.exception), "node can't contain HTML and children nodes at the same time")
 
         node = with_html_stack.HTMLNode()
         node.node_tag = with_html_stack.HTMLTag("a", color="red")
         node.children = [with_html_stack.HTMLNode(tag=with_html_stack.HTMLTag("br"))]
-        self.assertEqual(node.text(params=with_html_stack.DEV_PARAMS), '<a color="red">\n    <br/>\n</a>\n')
+        self.assertEqual(node.as_text(params=with_html_stack.DEV_PARAMS), '<a color="red">\n    <br/>\n</a>\n')
 
     def test_code(self):
         node = with_html_stack.HTMLNode()
-        self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), "")
+        self.assertEqual(node.as_code(params=with_html_stack.PROD_PARAMS), "")
 
         node = with_html_stack.HTMLNode()
         node.node_tag = with_html_stack.HTMLTag("a", color="red")
-        self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), "doc('a', color='red')")
+        self.assertEqual(node.as_code(params=with_html_stack.PROD_PARAMS), "doc('a', color='red')")
 
         node = with_html_stack.HTMLNode()
         node.node_raw = with_html_stack.HTMLRaw("raw html")
-        self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), "raw html")
+        self.assertEqual(node.as_code(params=with_html_stack.PROD_PARAMS), "raw html")
 
         node = with_html_stack.HTMLNode()
         node.node_tag = with_html_stack.HTMLTag("a", color="red")
         node.node_raw = with_html_stack.HTMLRaw("raw html")
-        self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), "doc('a', color='red', raw='raw html')")
+        self.assertEqual(node.as_code(params=with_html_stack.PROD_PARAMS), "doc('a', color='red', raw='raw html')")
 
         node = with_html_stack.HTMLNode()
         node.node_tag = with_html_stack.HTMLTag("a", color="red")
         node.node_raw = with_html_stack.HTMLRaw("raw html")
         self.assertEqual(
-            node.code(params=with_html_stack.DEV_PARAMS),
+            node.as_code(params=with_html_stack.DEV_PARAMS),
             "with doc('a', color='red'):\n    doc.raw('raw html')\n",
         )
 
@@ -482,13 +488,15 @@ class TestHTMLNode(unittest.TestCase):
             node.node_tag = with_html_stack.HTMLTag("a", color="red")
             node.node_raw = with_html_stack.HTMLRaw("raw html")
             node.children = [with_html_stack.HTMLNode()]
-            self.assertEqual(node.code(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
+            self.assertEqual(node.as_code(params=with_html_stack.PROD_PARAMS), '<a color="red">raw html</a>')
         self.assertEqual(str(exc.exception), "node can't contain HTML and children nodes at the same time")
 
         node = with_html_stack.HTMLNode()
         node.node_tag = with_html_stack.HTMLTag("a", color="red")
         node.children = [with_html_stack.HTMLNode(tag=with_html_stack.HTMLTag("br"))]
-        self.assertEqual(node.code(params=with_html_stack.DEV_PARAMS), "with doc('a', color='red'):\n    doc('br')\n")
+        self.assertEqual(
+            node.as_code(params=with_html_stack.DEV_PARAMS), "with doc('a', color='red'):\n    doc('br')\n"
+        )
 
 
 class TestHTMLDocument(unittest.TestCase):
@@ -513,7 +521,7 @@ class TestHTMLDocument(unittest.TestCase):
 
     def test_text_dev(self):
         self.assertEqual(
-            self.doc.text(with_html_stack.DEV_PARAMS),
+            self.doc.as_text(with_html_stack.DEV_PARAMS),
             """\
 <!DOCTYPE html>
 <html lang="en">
@@ -545,14 +553,14 @@ class TestHTMLDocument(unittest.TestCase):
 
     def test_text_prod(self):
         self.assertEqual(
-            self.doc.text(with_html_stack.PROD_PARAMS),
+            self.doc.as_text(with_html_stack.PROD_PARAMS),
             """\
 <!DOCTYPE html><html lang="en"><head><title>Example Domain</title><meta charset="utf-8"/></head><body><div><h1>Example Domain</h1><p>This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.</p><p><a href="https://www.iana.org/domains/example">More information</a></p></div></body></html>""",
         )
 
     def test_code(self):
         self.assertEqual(
-            self.doc.code(),
+            self.doc.as_code(),
             """\
 doc('!DOCTYPE', html=None)
 with doc('html', lang='en'):
@@ -596,7 +604,7 @@ with doc('html', lang='en'):
                             doc.raw("More information")
 
         self.assertEqual(
-            doc.text(with_html_stack.DEV_PARAMS),
+            doc.as_text(with_html_stack.DEV_PARAMS),
             """\
 <!DOCTYPE html>
 <html lang="en">
