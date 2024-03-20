@@ -6,7 +6,7 @@
 #
 astroid==2.15.2
     # via pylint
-black==23.3.0
+black==24.3.0
     # via -r requirements.in
 build==0.10.0
     # via pip-tools
@@ -52,11 +52,13 @@ tomli==2.0.1
     #   build
     #   mypy
     #   pylint
+    #   pyproject-hooks
 tomlkit==0.11.7
     # via pylint
 typing-extensions==4.5.0
     # via
     #   astroid
+    #   black
     #   mypy
 wheel==0.40.0
     # via pip-tools
